@@ -47,11 +47,19 @@
 var items   // global scope (i.e., can be accessed in javascript console)
 
 function solution1(){
-    // TODO: replace the hard coded values in series by actual computation
+    var group = _.groupBy(items, 'CrsPBADept')
+
+    group = _.mapValues(group, function(d) {
+      return d.length
+    })
+
+    var dept = _.take(_.keys(group), 5)
+    var count = _.take(_.values(group), 5)
+
     var data = {
-          labels: ['HIST', 'HONR', 'HUMN', 'IAFS', 'IPHY'],
+          labels: dept,
           series: [
-            [121,23,42,56,12]
+            count
           ]
     }
     new Chartist.Bar('#q1 .answer', data);
@@ -75,18 +83,84 @@ function solution2(){
 
 
 function solution3(){
+  var group = _.groupBy(items, 'CrsPBADept')
+
+  group = _.mapValues(group, function(d) {
+    return d.length
+  })
+
+  group = _.pick(group, function(value, key) {
+    return value >= 100
+  })
+  
+  var dept = _.keys(group)
+  var count = _.values(group)
+
+  var data = {
+        labels: dept,
+        series: [
+          count
+        ]
+    }
+    new Chartist.Bar('#q3 .answer', data);
 }
 
 function solution4(){
+  var group = _.groupBy(items, 'CrsPBADept')
+
+  group = _.pairs(_.mapValues(group, function(d) {
+    return d.length
+  }))
+    
+  var sort = _.sortBy(group, function(d) {
+    return d[1]
+  }).reverse()
+
+  sort = _.object(_.take(sort, 10))
+
+  var dept = _.keys(sort)
+  var count = _.values(sort)
+
+  var data = {
+      labels: dept,
+      series: [
+        count
+      ]
+  }
+  new Chartist.Bar('#q4 .answer', data, {horizontalBars: true, reverseData: true});
 }
 
 function solution5(){
-    // TODO: replace the hard coded values in series by actual computation
+    // History
+    var hist = _.filter(items, function(d) {
+      return d.CrsPBADept == "HIST"
+    }) 
+
+    hist = _.groupBy(hist, function(d) {
+      return Math.floor(d.Course/1000)    // separates by level
+    })
+
+    hist = _.mapValues(hist, function(d) { return d.length })
+
+    hist = _.take(_.values(hist), 4)
+
+    // CSCI
+    var cs = _.filter(items, function(d) {
+      return d.CrsPBADept == "CSCI"
+    }) 
+
+    cs = _.groupBy(cs, function(d) {
+      return Math.floor(d.Course/1000)  // separates by level
+    })
+
+    cs = _.mapValues(cs, function(d) { return d.length })
+    cs = _.take(_.values(cs), 4)
+
     var data = {
           labels: ['1xxx', '2xxx', '3xxx', '4xxx'],
           series: [
-            [20,30,40,50],  // CSCI
-            [30,30,30,30]   // HIST
+            cs,  // CSCI
+            hist   // HIST
           ]
     }
     new Chartist.Bar('#q5 .answer', data);
