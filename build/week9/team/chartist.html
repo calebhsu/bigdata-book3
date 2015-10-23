@@ -1,0 +1,199 @@
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.9.4/chartist.min.css">
+<head>
+<body>
+
+<div class="container">
+
+    <h1>FCQ (Chartist)</h1>
+
+    <section id="q1" class="question">
+        <h4>How many courses were taught across five departments?</h4>
+        <div class="answer ct-double-octave"></div>
+    </section>
+
+    <section id="q2" class="question">
+        <h4>How many courses were taught across all departments?</h4>
+        <div class="answer ct-double-octave"></div>
+    </section>
+
+    <section id="q3" class="question">
+        <h4>How many courses were taught across the departments that have taught
+            at least 100 courses?</h4>
+        <div class="answer ct-double-octave"></div>
+    </section>
+
+    <section id="q4" class="question">
+        <h4>How many courses were taught among the top 10 departments (sorted)?</h4>
+        <div class="answer ct-double-octave"></div>
+    </section>
+
+    <section id="q5" class="question">
+        <h4>How are the number of courses taught compared between HIST and CSCI across the four levels?</h4>
+        <div class="answer ct-double-octave"></div>
+    </section>
+
+</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.9.4/chartist.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/js/materialize.min.js"></script>
+    <script src="/js/geolib.js"></script>
+    <script>
+
+var items   // global scope (i.e., can be accessed in javascript console)
+
+function solution1(){
+    var group = _.groupBy(items, 'CrsPBADept')
+
+    group = _.mapValues(group, function(d) {
+      return d.length
+    })
+
+    var dept = _.take(_.keys(group), 5)
+    var count = _.take(_.values(group), 5)
+
+    var data = {
+          labels: dept,
+          series: [
+            count
+          ]
+    }
+    new Chartist.Bar('#q1 .answer', data);
+}
+
+function solution2(){
+    // This is a working example, but the problem is that too many departments
+    // are shown and their labels are overlapping
+    var groups = _.groupBy(items, 'CrsPBADept')
+    var counts = _.mapValues(groups, function(g){
+        return g.length
+    })
+    var data = {
+          labels: _.keys(counts),
+          series: [
+            _.values(counts)
+          ]
+    }
+    new Chartist.Bar('#q2 .answer', data);
+}
+
+
+function solution3(){
+  var group = _.groupBy(items, 'CrsPBADept')
+
+  group = _.mapValues(group, function(d) {
+    return d.length
+  })
+
+  group = _.pick(group, function(value, key) {
+    return value >= 100
+  })
+  
+  var dept = _.keys(group)
+  var count = _.values(group)
+
+  var data = {
+        labels: dept,
+        series: [
+          count
+        ]
+    }
+    new Chartist.Bar('#q3 .answer', data);
+}
+
+function solution4(){
+  var group = _.groupBy(items, 'CrsPBADept')
+
+  group = _.pairs(_.mapValues(group, function(d) {
+    return d.length
+  }))
+    
+  var sort = _.sortBy(group, function(d) {
+    return d[1]
+  }).reverse()
+
+  sort = _.object(_.take(sort, 10))
+
+  var dept = _.keys(sort)
+  var count = _.values(sort)
+
+  var data = {
+      labels: dept,
+      series: [
+        count
+      ]
+  }
+  new Chartist.Bar('#q4 .answer', data, {horizontalBars: true, reverseData: true});
+}
+
+function solution5(){
+    // History
+    var hist = _.filter(items, function(d) {
+      return d.CrsPBADept == "HIST"
+    }) 
+
+    hist = _.groupBy(hist, function(d) {
+      return Math.floor(d.Course/1000)    // separates by level
+    })
+
+    hist = _.mapValues(hist, function(d) { return d.length })
+
+    hist = _.take(_.values(hist), 4)
+
+    // CSCI
+    var cs = _.filter(items, function(d) {
+      return d.CrsPBADept == "CSCI"
+    }) 
+
+    cs = _.groupBy(cs, function(d) {
+      return Math.floor(d.Course/1000)  // separates by level
+    })
+
+    cs = _.mapValues(cs, function(d) { return d.length })
+    cs = _.take(_.values(cs), 4)
+
+    var data = {
+          labels: ['1xxx', '2xxx', '3xxx', '4xxx'],
+          series: [
+            cs,  // CSCI
+            hist   // HIST
+          ]
+    }
+    new Chartist.Bar('#q5 .answer', data);
+}
+
+function run(id, solutionFunc, data){
+    console.log('run solution for ' + id)
+    var answer = solutionFunc(data)
+    $(id).find('.answer').html(answer)
+}
+
+function loadDataThenRunSolutions(){
+    $.get({url: 'http://bigdatahci2015.github.io/data/fcq/fcq.clean.json'})
+     .done(function(data){
+         items = data
+
+         console.log('number of items loaded:', items.length)
+         console.log('first item', items[0])
+
+         run('#q1', solution1, items)
+         run('#q2', solution2, items)
+         run('#q3', solution3, items)
+         run('#q4', solution4, items)
+         run('#q5', solution5, items)
+     })
+     .fail(function(err){
+         console.error(err)
+     })
+}
+
+loadDataThenRunSolutions()
+
+    </script>
+
+</body>
+</html>
