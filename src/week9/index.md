@@ -1,4 +1,8 @@
-# Learning Challenges
+---
+layout: layout.hbs
+---
+
+# Week 9 - Learning Challenges
 
 # Team
 
