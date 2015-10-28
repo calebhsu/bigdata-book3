@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/css/materialize.min.css">
+</head>
+<body>
+  <div class="container flow-text">
+  <h1 id="hackathon-business-locations">Hackathon - Business Locations</h1>
+<p>You are approached by a business developer to get advice on where to build a
+new store in Phoenix, AZ. There are currently six candidates. Use the Yelp
+dataset and come up with your own scoring scheme to identify the best location
+to recommend.</p>
+<h2 id="report">Report</h2>
+<p><a href="report.html">Read the Report</a></p>
+<h2 id="business-types">Business Types</h2>
+<p>As a team, choose one of the following business types to work on:</p>
+<ul>
+<li>A new full-service daycare center</li>
+<li>A new full-service car wash</li>
+<li>A new 24-hours gym</li>
+<li>A new 24-hours diner</li>
+<li>A new swimming pool</li>
+<li>A new organic food store</li>
+<li>A new sushi buffet</li>
+</ul>
+<h2 id="scoring-method">Scoring Method</h2>
+<p>For this hackathon, you will use a scoring method that is based on a series of
+20 Yes/No questions that can be applied to each candidate location. The candidate
+location that has the most number of Yes’s is the most viable location.</p>
+<p>Each Yes/No question generally should take on the form of</p>
+<p>  <em>Does the location have X nearby?</em></p>
+<p>where X is a feature that you think would be useful for the business to be viable.</p>
+<p>Two examples of such questions are:</p>
+<ol>
+<li>Does the location have <em>at least one McDonald’s within one mile</em>?</li>
+<li>Does the location have <em>at least ten businesses with 100 or more reviews within one mile</em>?</li>
+</ol>
+<h2 id="coding">Coding</h2>
+<p>Implement scoring functions and visualize how these candidate locations are
+scored. The skeleton code is provided for you in <a href="report.html">report.html</a>.</p>
+<h2 id="grading">Grading</h2>
+<p>Each person must implement at least two questions to receive credits for this
+hackathon.</p>
+<h2 id="submissions">Submissions</h2>
+<h3 id="business-type">Business Type</h3>
+<p>Our team chose to analyze candidate locations for a new 24-hour diner.</p>
+<h3 id="contributors">Contributors</h3>
+<p>The team members who contributed to this hackathon are:</p>
+<ul>
+<li><a href="https://github.com/calebhsu/">Caleb Hsu</a></li>
+<li><a href="https://github.com/Linenfelser">Andrew Linenfelser</a></li>
+<li><a href="https://github.com/zhya215">Zhili Yang</a></li>
+<li><a href="https://github.com/AndreyShprengel">Andrey Shprengel</a></li>
+<li><a href="https://github.com/anbe6083">Andrew Berumen</a></li>
+</ul>
+<h3 id="20-questions">20 Questions</h3>
+<p>Our team came up with the following relevant questions:</p>
+<ol>
+<li><p>Does the location have at least 3 restaurants nearby with more than 5 reviews within .5km? (Andrey)</p>
+<p>If so this is an area people go to dine out.</p>
+</li>
+<li><p>Does the location have no Mcdonald’s within 1km? (Andrey)</p>
+<p>If so then we have less cheap competition.</p>
+</li>
+<li><p>Does the location have a liquor store within 4km? (Andrey)</p>
+<p>If so people will get the drunken munchies.</p>
+</li>
+<li><p>Does the location have no grocery store within .5km ? (Andrey)</p>
+<p>Then people will be less likely to cook at home and more likely to eat out.</p>
+</li>
+<li><p>Is there a lack of Denny’s or IHOP within 5km of the location? (Andrew Berumen)</p>
+<p>Denny’s and IHOP are main competitors, so having a location away from them would be beneficial .</p>
+</li>
+<li><p>Is there a good amount of nightlife within 5km the location? (Good amount being 5 or more) (Andrew Berumen)</p>
+<p>Drunk people like food when they’re drunk.</p>
+</li>
+<li><p>Are there any restaurants with happy hour nearby? (Andrew Berumen)</p>
+<p>Happy drunk people like food when they’re happy and drunk during the day.</p>
+</li>
+<li><p>Is there a good amount of bad restaurants in a 5km radius? (bad being less than 3 stars and 5 reviews) (Andrew Berumen)</p>
+<p>We’re going to have the classiest, 5 star 24 hour diner around. Having bad businesses around is beneficial so they are more likely to go to our restaurant than others.</p>
+</li>
+<li><p>Does the location have any open Colleges &amp; Universities within a 2km radius? (Caleb Hsu)</p>
+<p>Restaurants near colleges and universities typically get a lot of business throughout the day, especially later at night.</p>
+</li>
+<li><p>Does the location have any open Stadiums &amp; Arenas within a 0.5m radius? (Caleb Hsu)</p>
+<p>Stadiums and arenas typically have large events later at night, so a 24-hour diner would benefit from the influx of traffic late at night.</p>
+</li>
+<li><p>Does the location have any open Hospitals within a 1km radius? (Caleb Hsu)</p>
+<p>Hospitals are open 24 hours and are staffed during both day and night. Not only would the diner benefit from hospital employees as customers, but also families of patients who do not want to travel far in search of food.</p>
+</li>
+<li><p>Does the location have over 10 open restaurants that are not good for groups nor kids within a 2km radius? (Caleb Hsu)</p>
+<p>If the diner is surrounded by restaurants that are neither good for groups nor for kids, then logically groups or people with kids will be drawn to the diner.</p>
+</li>
+<li><p>Does The Location Have Less Than 100 Competing Restaurants Nearby In 1000 Meters? (Zhili Yang)</p>
+<p>The less competing restaurants nearby are, the more chances people will go to my restaurant.</p>
+</li>
+<li><p>Does The Location Have At Least One Open Cinema Nearby In A 1 Km Radius? (Zhili Yang)</p>
+<p>Because people tend to get some food before or after watching movie.</p>
+</li>
+<li><p>Does The Location Have At Least One Open Hotel With The Rating Higher Than 4 And Gets More Than 10 Reviews Nearby In A 1 Km Radius? (Zhili Yang)</p>
+<p>Travellers tend to get food from somewhere nearby the hotels they live. And the hotels with higher comments should get more travellers.</p>
+</li>
+<li><p>Are There More Than 50 Open Restaurants Nearby Without Wifi Service Within 2 Km? (Zhili Yang)</p>
+<p>People tend to choose the restaurants with free wi-fi service, if there are a lot of restaurants without wi-fi nearby and our restaurant have wi-fi, this can be one of our advantages to attract customers.</p>
+</li>
+<li><p>Is there an airport within a 3 mile distance? (Andrew L)</p>
+<p>Being a few minute taxi ride away from an airport could bring in many customers with long layovers at the airport, or if people want to eat soon after they get off the plane. Airports also employ a lot of people, and these people need to eat</p>
+</li>
+<li><p>Is there at least one transportation service within 2 km? (Andrew L)</p>
+<p>In order for customers to eat at our diner, they need to get to the diner first. If they do not have a car transportation services are necessary, or since we are a 24 hour business, we want our diner to be accessible to the after bar crowd. </p>
+</li>
+<li><p>Does the location have parking within a 0.2 mile distance? (Andrew L)</p>
+<p>Parking is a necessity for anyone that drives to our diner. If the walk from the car is too long, no customers will eat at our diner. </p>
+</li>
+<li><p>Does the location have another 24 hour business within 1/10 mile distance? (Andrew L)</p>
+<p>If there are other 24 hour businesses in the area, it means that people come to this area for 24 hour services. We want to be inside of this area because a 24 hour diner off by itself may not do too well. </p>
+</li>
+</ol>
+<h3 id="conclusion">Conclusion</h3>
+<p>Our team collectively has implemented 20 scoring functions. Based on
+the scores, our team recommends location 2 (from west to east),
+because it receives 14 out of 20 possible scores.</p>
+
+  </div>
+</body>
+</html>
