@@ -1,0 +1,180 @@
+<html>
+<head>
+    <style>
+        .answer {
+            min-height: 50px
+        }
+        section{
+          padding: 10px;
+          margin-bottom: 12px
+        }
+        .parallax-container {
+          height: 300
+        }
+        #title {
+          position: absolute;
+          padding: 20px;
+          font-size: 64px;
+          font-weight: bolder;
+          color: white;
+          top: 100px;
+          left: 0px;
+          text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black
+        }
+        #title .authors {
+          padding: 20px;
+          font-size: 32px;
+          font-weight: bolder;
+          color: #BBB;
+          text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/css/materialize.min.css">
+</head>
+<body>
+
+  <div class="parallax-container">
+    <div class="parallax">
+      <img src="nepal.jpg">
+      <h1 id="title">What are the patterns of image diffusion during the Nepal Earthquake?
+        <div class="authors">by Name1, Name2, Name3, Name4</div>
+      </h1>
+
+    </div>
+  </div>
+
+  <div class="section white container flow-text">
+
+      <div id="questions" class="collection with-header">
+          <div class="collection-header">Questions</div>
+          <section id="q1" class="question collection-item">
+              <h4>question? (contributed by ???)</h4>
+              <div class="answer"></div>
+          </section>
+
+          <section id="q2" class="question collection-item">
+              <h4>question? (contributed by ???)</h4>
+              <div class="answer"></div>
+          </section>
+
+          <section id="q3" class="question collection-item">
+              <h4>question? (contributed by ???)</h4>
+              <div class="answer"></div>
+          </section>
+
+          <section id="q4" class="question collection-item">
+              <h4>question? (contributed by ???)</h4>
+              <div class="answer"></div>
+          </section>
+
+          <section id="q5" class="question collection-item">
+              <h4>question? (contributed by ???)</h4>
+              <div class="answer"></div>
+          </section>
+
+          <section id="q6" class="question collection-item">
+              <h4>question? (contributed by ???)</h4>
+              <div class="answer"></div>
+          </section>
+      </div>
+
+  </div>
+
+  <div class="parallax-container" style="height:200px">
+    <div class="parallax">
+      <img src="nepal2.jpg">
+    </div>
+  </div>
+
+
+  <div class="section white container flow-text">
+    <div class="markdown">
+
+# Discussion
+
+Discuss some findings
+
+# Heading 2
+
+Discuss some findings
+
+    </div>
+  </div>
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/js/materialize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.min.js"></script>
+    <script>
+
+var items   // global scope (i.e., can be accessed in javascript console)
+
+function solution1(){
+    return 'TODO'
+}
+
+function solution2(){
+    return 'TODO'
+}
+
+function solution3(){
+    return 'TODO'
+}
+
+function solution4(){
+    return 'TODO'
+}
+
+function solution5(){
+    return 'TODO'
+}
+
+function solution6(){
+    return 'TODO'
+}
+
+function run(id, solutionFunc, data){
+    console.log('run solution for ' + id)
+    var answer = solutionFunc(data)
+    $(id).find('.answer').html(answer)
+}
+
+function loadDataThenRunSolutions(){
+  $.get({url: 'http://bigdatahci2015.github.io/data/twitter/nepal_local_tweets.json'})
+    .done(function(data){
+
+        items = data
+        console.log('number of items loaded:', items.length)
+        console.log('first item', items[0])
+
+       run('#q1', solution1, items)
+       run('#q2', solution2, items)
+       run('#q3', solution3, items)
+       run('#q4', solution4, items)
+       run('#q5', solution5, items)
+       run('#q6', solution6, items)
+     })
+     .fail(function(err){
+         console.error(err)
+     })
+}
+
+// loadDataThenRunSolutions()
+
+// convert Markdown to html
+$('.markdown').each(function(){
+  var markdownText = $(this).text()
+  $(this).html(marked(markdownText))
+})
+
+// initialize the parallax effect
+$(document).ready(function(){
+  console.log($('.parallax').html())
+    $('.parallax').parallax()
+})
+
+    </script>
+
+</body>
+</html>
