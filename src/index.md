@@ -8,6 +8,7 @@ layout: layout.hbs
 ## Learning
 
 * [Week 9](week9/)
+* [Week 10](week10/)
 
 ## Hackathons
 

@@ -37,7 +37,7 @@
     <div class="parallax">
       <img src="nepal.jpg">
       <h1 id="title">What are the patterns of image diffusion during the Nepal Earthquake?
-        <div class="authors">by Name1, Name2, Name3, Name4</div>
+        <div class="authors">by Caleb Hsu, Zhili Yang, Andrew Linenfelser, Andrey Shprengel, Andrew Berumen</div>
       </h1>
 
     </div>
@@ -48,12 +48,12 @@
       <div id="questions" class="collection with-header">
           <div class="collection-header">Questions</div>
           <section id="q1" class="question collection-item">
-              <h4>question? (contributed by ???)</h4>
+              <h4>What is ratio of tweets in Nepali to tweets in Hindi? (Caleb Hsu)</h4>
               <div class="answer"></div>
           </section>
 
           <section id="q2" class="question collection-item">
-              <h4>question? (contributed by ???)</h4>
+              <h4>Does user name: PrayForNepal have any original tweets or was the account created solely to repost tweets? (Andrew Linenfelser )</h4>
               <div class="answer"></div>
           </section>
 
@@ -94,10 +94,6 @@
 
 Discuss some findings
 
-# Heading 2
-
-Discuss some findings
-
     </div>
   </div>
   
@@ -111,7 +107,14 @@ Discuss some findings
 var items   // global scope (i.e., can be accessed in javascript console)
 
 function solution1(){
-    return 'TODO'
+    // var imageSort = _.uniq(items, function(d) {
+    //     return d['Tweet Language']
+    // })
+        var imageSort = _.uniq(items, function(d) {
+        return d['Image Id Str']
+    })
+
+    return imageSort.length
 }
 
 function solution2(){
