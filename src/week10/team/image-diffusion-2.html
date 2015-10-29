@@ -96,7 +96,7 @@ Discuss some findings
 
     </div>
   </div>
-  
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/js/materialize.min.js"></script>
@@ -144,7 +144,7 @@ function run(id, solutionFunc, data){
 }
 
 function loadDataThenRunSolutions(){
-  $.get({url: 'http://bigdatahci2015.github.io/data/twitter/nepal_local_tweets.json'})
+  $.get('http://bigdatahci2015.github.io/data/twitter/nepal_local_tweets.json')
     .done(function(data){
 
         items = data
@@ -163,7 +163,7 @@ function loadDataThenRunSolutions(){
      })
 }
 
-// loadDataThenRunSolutions()
+loadDataThenRunSolutions()
 
 // convert Markdown to html
 $('.markdown').each(function(){
