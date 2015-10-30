@@ -1,0 +1,320 @@
+<html>
+<head>
+    <style>
+        .answer {
+            min-height: 50px
+        }
+        section{
+          padding: 10px;
+          margin-bottom: 12px
+        }
+        .parallax-container {
+          height: 300
+        }
+        #title {
+          position: absolute;
+          padding: 20px;
+          font-size: 64px;
+          font-weight: bolder;
+          color: white;
+          top: 100px;
+          left: 0px;
+          text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black
+        }
+        #title .authors {
+          padding: 20px;
+          font-size: 32px;
+          font-weight: bolder;
+          color: #BBB;
+          text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/css/materialize.min.css">
+</head>
+<body>
+
+  <div class="parallax-container">
+    <div class="parallax">
+      <img src="nepal.jpg">
+      <h1 id="title">What are the patterns of image diffusion during the Nepal Earthquake?
+        <div class="authors">by Caleb Hsu, Zhili Yang, Andrew Linenfelser, Andrey Shprengel, Andrew Berumen</div>
+      </h1>
+
+    </div>
+  </div>
+
+  <div class="section white container flow-text">
+
+      <div id="questions" class="collection with-header">
+          <div class="collection-header">Questions</div>
+          <section id="q1" class="question collection-item">
+              <h4>What percentage of tweets are retweets in Nepali and in Hindi respectively? (Caleb Hsu)</h4>
+              <div class="answer"></div>
+          </section>
+
+          <section id="q2" class="question collection-item">
+              <h4>Does user name: PrayForNepal have any original tweets or was the account created solely to repost tweets? (Andrew Linenfelser )</h4>
+              <div class="answer"></div>
+          </section>
+
+           <section id="q3" class="question collection-item">
+              <h4>Who uploaded the most original tweets on 4/26, 4/27 and 4/28? (Zhili Yang)</h4>
+              <div class="answer"></div>
+          </section>
+
+          <section id="q4" class="question collection-item">
+              <h4>Of the top 10 images that got the most retweets what was the distribution of follower counts? (Andrey Shprengel)</h4>
+              <div class="answer"></div>
+          </section>
+
+          <section id="q5" class="question collection-item">
+              <h4>Which users had the tweets closest to the Nepali Earthquake? (By Andrew Berumen)</h4>
+              <div class="answer"></div>
+          </section>
+
+          <section id="q6" class="question collection-item">
+              <h4>Were more images tweeted & retweeted in the morning or evening (AM/PM)? (Caleb Hsu)</h4>
+              <div class="answer"></div>
+          </section>
+      </div>
+
+  </div>
+
+  <div class="parallax-container" style="height:200px">
+    <div class="parallax">
+      <img src="nepal2.jpg">
+    </div>
+  </div>
+
+
+ <div class="section white container flow-text">
+    <div class="markdown">
+
+# Discussion
+
+According to our analysis, it appears that the majority of tweets collected in this dataset were tweeted in the morning (before 12:00PM Nepali Standard Time). This makes sense because although the earthquake itself occurred around noon, images likely did not begin circulating until the extend of the damage was evident and people had gone to safety. It would be interesting to see if image-less tweets were higher in volume near the actual time of the earthquake. 
+
+The three users that posted images closest to the actual time of the earthquake were agastya_kh, im_pritam3, and rmcroshan, and the users that created the most original image tweets were news agencies. Additionally, a number of the most retweeted images were originally created by users with a higher number of followers (with a few exceptions), so it is probable that these were the official twitters of various news agencies.
+
+In terms of more specific difference in tweets, it appears the frequency of retweets in Hindi were 12% higher than retweets in Nepali, although this is also based off of a smaller sampling size of Hindi tweets (which likewise makes sense due to the demographics of Nepal). As with many natural disasters, Twitter accounts are created specifically for the purpose of retweeting news of the quake, as was the case with _prayfornepal_, which created no original retweets.
+
+    </div>
+  </div>
+
+
+    </div>
+  </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/js/materialize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.min.js"></script>
+    <script>
+
+var items   // global scope (i.e., can be accessed in javascript console)
+
+function solution1(){
+    // Nepali
+    var neT = _.filter(items, function(d) {
+      return (d['Tweet Language'] == "ne") && (d['* Original Tweet Created At'] == "")
+    }).length
+    var neRT = _.filter(items, function(d) {
+      return (d['Tweet Language'] == "ne") && (d['* Original Tweet Created At'] != "")
+    }).length
+
+    // percentage of retweets in Nepali out of all tweets in Nepali
+    var nePCT = (neRT / (neT + neRT)) * 100
+
+    // Hindi
+    var hiT = _.filter(items, function(d) {
+      return (d['Tweet Language'] == "hi") && (d['* Original Tweet Created At'] == "")
+    }).length
+    var hiRT = _.filter(items, function(d) {
+      return (d['Tweet Language'] == "hi") && (d['* Original Tweet Created At'] != "")
+    }).length    
+
+    // percentage of retweets in Hindi out of all tweets in Hindi
+    var hiPCT = (hiRT / (hiT + hiRT)) * 100
+
+    return "Nepali: " + nePCT.toFixed(2) + "% retweets, " + "Hindi: " + hiPCT.toFixed(2) + "% retweets."
+}
+
+function solution2(){
+    var pfn = _.filter(items, function(d){
+    return _.includes(d['Original User Screen Name'], 'prayfornepal') 
+   })
+
+  var retweet = _.filter(pfn, function(d){
+    return d.Rt == 'Retweet'
+  }).length
+
+  var pfnLength = pfn.length
+
+  if (pfnLength == retweet){
+    return "prayfornepal was created only to retweet, no original tweets"
+  }
+  else{
+    return "prayfornepal has original tweets"
+  }
+
+}
+
+function solution3(){
+    var fil=_.filter(items, function(i){
+      return i["Rt"] != "Retweet"
+    })
+    var sp=_.map(fil, function(i){
+      return {
+        "date": i["* Tweet Created At"].split(" ")[0],
+        "name": i["User Name"]
+      }
+    })
+    var groups=_.groupBy(sp, function(e){
+      return e["date"]
+    })
+    var gmap=_.mapValues(groups, function(g){
+      return _.mapValues(_.groupBy(g, function(e){
+        return e["name"]
+      }), function(n){
+        return n.length
+      })
+    })
+    var gList=_.mapValues(gmap, function(g){
+      return _.pairs(g)
+    })
+    var maxG=_.mapValues(gList, function(g){
+      return _.max(g, function(e){
+        return e[1]
+      })
+    })
+    var maxUser=_.mapValues(maxG, function(g){
+      return g[0]
+    })
+    console.log("max: ", maxUser)
+    var users=[]
+    users.push(maxUser["4/26/15"])
+    users.push(maxUser["4/27/15"])
+    users.push(maxUser["4/28/15"])
+    return users.join(", ")
+
+}
+
+function solution4(){
+    var grps = _.groupBy(items, function(d){return d["Image Id Str"]})
+    var pairs = _.pairs(grps)
+    pairs = _.sortBy(pairs, function(value, key){return value[1].length}).reverse()
+    pairs = _.take(pairs, 30)
+    
+    var original_tweets=  _.filter(items, function(d)
+    {
+            return d["* Original Tweet Created At"] == "" && d["Rt"] != "Retweet"
+           
+    })
+    
+    var map = _.map(pairs, function(value, key)
+    {
+        var username = value[1][0]["Original User Name"]
+        var count = _.filter(items, function(tweet) 
+        { 
+            return tweet["User Name"] == username
+        })
+        return {username, count}
+    })
+    console.log("map1:", map)
+
+    map = _.filter(map, function(d){ if(d.count != undefined && d.count.length != 0){return true} })
+   map = _.mapValues(map,function(d)
+   {
+        return d.count[0]["User Followers Count"]
+    })
+
+    return _.values(map).join(", ")
+
+}
+
+function solution5(){
+    var filterOriginal = _.filter(items, function(d){
+      return d["* Original Tweet Created At"] == ""
+    })
+    console.log('filterOriginal', filterOriginal)
+
+    var splitDate = _.map(filterOriginal, function(d){
+      return{
+        "date": d["* Tweet Created At"].split(" ")[0],
+        "time": d["* Tweet Created At"].split(" ")[1]
+      }
+    })
+
+    var filterByDate = _.filter(splitDate, function(d){
+      return d.date == '4/25/15'
+    })
+
+    var users = _.filter(items, function(d){
+      if(d["* Tweet Created At"].split(" ")[0] == '4/25/15' && d["* Original Tweet Created At"] == ""){
+        return d
+      }
+    })
+
+    var pluckNames = _.pluck(users, "User Screen Name")
+
+    return pluckNames.join(", ")
+
+}
+
+function solution6(){
+    var filterAM = _.filter(items, function(d){
+      return _.includes(d["* Tweet Created At"], 'AM')
+    }).length
+
+    var filterPM = _.filter(items, function(d){
+      return _.includes(d["* Tweet Created At"], 'PM')
+    }).length
+
+    return filterAM + " images were tweeted in the morning while " + filterPM + " images were tweeted in the evening."
+}
+
+function run(id, solutionFunc, data){
+    console.log('run solution for ' + id)
+    var answer = solutionFunc(data)
+    $(id).find('.answer').html(answer)
+}
+
+function loadDataThenRunSolutions(){
+  $.get('http://bigdatahci2015.github.io/data/twitter/nepal_local_tweets.json')
+    .done(function(data){
+
+        items = data
+        console.log('number of items loaded:', items.length)
+        console.log('first item', items[0])
+
+       run('#q1', solution1, items)
+       run('#q2', solution2, items)
+       run('#q3', solution3, items)
+       run('#q4', solution4, items)
+       run('#q5', solution5, items)
+       run('#q6', solution6, items)
+     })
+     .fail(function(err){
+         console.error(err)
+     })
+}
+
+loadDataThenRunSolutions()
+
+// convert Markdown to html
+$('.markdown').each(function(){
+  var markdownText = $(this).text()
+  $(this).html(marked(markdownText))
+})
+
+// initialize the parallax effect
+$(document).ready(function(){
+  console.log($('.parallax').html())
+    $('.parallax').parallax()
+})
+
+    </script>
+
+</body>
+</html>
