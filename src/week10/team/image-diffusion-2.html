@@ -48,7 +48,7 @@
       <div id="questions" class="collection with-header">
           <div class="collection-header">Questions</div>
           <section id="q1" class="question collection-item">
-              <h4>What is ratio of tweets in Nepali to tweets in Hindi? (Caleb Hsu)</h4>
+              <h4>What percentage of tweets are retweets in Nepali and in Hindi respectively? (Caleb Hsu)</h4>
               <div class="answer"></div>
           </section>
 
@@ -57,23 +57,23 @@
               <div class="answer"></div>
           </section>
 
-          <section id="q3" class="question collection-item">
-              <h4>question? (contributed by ???)</h4>
+           <section id="q3" class="question collection-item">
+              <h4>Who uploaded the most original tweets on 4/26, 4/27 and 4/28? (Zhili Yang)</h4>
               <div class="answer"></div>
           </section>
 
           <section id="q4" class="question collection-item">
-              <h4>question? (contributed by ???)</h4>
+              <h4>Of the top 10 images that got the most retweets what was the distribution of follower counts? (Andrey Shprengel)</h4>
               <div class="answer"></div>
           </section>
 
           <section id="q5" class="question collection-item">
-              <h4>question? (contributed by ???)</h4>
+              <h4>Which users had the tweets closest to the Nepali Earthquake? (By Andrew Berumen)</h4>
               <div class="answer"></div>
           </section>
 
           <section id="q6" class="question collection-item">
-              <h4>question? (contributed by ???)</h4>
+              <h4>Were more images tweeted & retweeted in the morning or evening (AM/PM)? (Caleb Hsu)</h4>
               <div class="answer"></div>
           </section>
       </div>
@@ -87,12 +87,20 @@
   </div>
 
 
-  <div class="section white container flow-text">
+ <div class="section white container flow-text">
     <div class="markdown">
 
 # Discussion
 
-Discuss some findings
+According to our analysis, it appears that the majority of tweets collected in this dataset were tweeted in the morning (before 12:00PM Nepali Standard Time). This makes sense because although the earthquake itself occurred around noon, images likely did not begin circulating until the extend of the damage was evident and people had gone to safety. It would be interesting to see if image-less tweets were higher in volume near the actual time of the earthquake. 
+
+The three users that posted images closest to the actual time of the earthquake were agastya_kh, im_pritam3, and rmcroshan, and the users that created the most original image tweets were news agencies. Additionally, a number of the most retweeted images were originally created by users with a higher number of followers (with a few exceptions), so it is probable that these were the official twitters of various news agencies.
+
+In terms of more specific difference in tweets, it appears the frequency of retweets in Hindi were 12% higher than retweets in Nepali, although this is also based off of a smaller sampling size of Hindi tweets (which likewise makes sense due to the demographics of Nepal). As with many natural disasters, Twitter accounts are created specifically for the purpose of retweeting news of the quake, as was the case with _prayfornepal_, which created no original retweets.
+
+    </div>
+  </div>
+
 
     </div>
   </div>
@@ -107,34 +115,163 @@ Discuss some findings
 var items   // global scope (i.e., can be accessed in javascript console)
 
 function solution1(){
-    // var imageSort = _.uniq(items, function(d) {
-    //     return d['Tweet Language']
-    // })
-        var imageSort = _.uniq(items, function(d) {
-        return d['Image Id Str']
-    })
+    // Nepali
+    var neT = _.filter(items, function(d) {
+      return (d['Tweet Language'] == "ne") && (d['* Original Tweet Created At'] == "")
+    }).length
+    var neRT = _.filter(items, function(d) {
+      return (d['Tweet Language'] == "ne") && (d['* Original Tweet Created At'] != "")
+    }).length
 
-    return imageSort.length
+    // percentage of retweets in Nepali out of all tweets in Nepali
+    var nePCT = (neRT / (neT + neRT)) * 100
+
+    // Hindi
+    var hiT = _.filter(items, function(d) {
+      return (d['Tweet Language'] == "hi") && (d['* Original Tweet Created At'] == "")
+    }).length
+    var hiRT = _.filter(items, function(d) {
+      return (d['Tweet Language'] == "hi") && (d['* Original Tweet Created At'] != "")
+    }).length    
+
+    // percentage of retweets in Hindi out of all tweets in Hindi
+    var hiPCT = (hiRT / (hiT + hiRT)) * 100
+
+    return "Nepali: " + nePCT.toFixed(2) + "% retweets, " + "Hindi: " + hiPCT.toFixed(2) + "% retweets."
 }
 
 function solution2(){
-    return 'TODO'
+    var pfn = _.filter(items, function(d){
+    return _.includes(d['Original User Screen Name'], 'prayfornepal') 
+   })
+
+  var retweet = _.filter(pfn, function(d){
+    return d.Rt == 'Retweet'
+  }).length
+
+  var pfnLength = pfn.length
+
+  if (pfnLength == retweet){
+    return "prayfornepal was created only to retweet, no original tweets"
+  }
+  else{
+    return "prayfornepal has original tweets"
+  }
+
 }
 
 function solution3(){
-    return 'TODO'
+    var fil=_.filter(items, function(i){
+      return i["Rt"] != "Retweet"
+    })
+    var sp=_.map(fil, function(i){
+      return {
+        "date": i["* Tweet Created At"].split(" ")[0],
+        "name": i["User Name"]
+      }
+    })
+    var groups=_.groupBy(sp, function(e){
+      return e["date"]
+    })
+    var gmap=_.mapValues(groups, function(g){
+      return _.mapValues(_.groupBy(g, function(e){
+        return e["name"]
+      }), function(n){
+        return n.length
+      })
+    })
+    var gList=_.mapValues(gmap, function(g){
+      return _.pairs(g)
+    })
+    var maxG=_.mapValues(gList, function(g){
+      return _.max(g, function(e){
+        return e[1]
+      })
+    })
+    var maxUser=_.mapValues(maxG, function(g){
+      return g[0]
+    })
+    console.log("max: ", maxUser)
+    var users=[]
+    users.push(maxUser["4/26/15"])
+    users.push(maxUser["4/27/15"])
+    users.push(maxUser["4/28/15"])
+    return users.join(", ")
+
 }
 
 function solution4(){
-    return 'TODO'
+    var grps = _.groupBy(items, function(d){return d["Image Id Str"]})
+    var pairs = _.pairs(grps)
+    pairs = _.sortBy(pairs, function(value, key){return value[1].length}).reverse()
+    pairs = _.take(pairs, 30)
+    
+    var original_tweets=  _.filter(items, function(d)
+    {
+            return d["* Original Tweet Created At"] == "" && d["Rt"] != "Retweet"
+           
+    })
+    
+    var map = _.map(pairs, function(value, key)
+    {
+        var username = value[1][0]["Original User Name"]
+        var count = _.filter(items, function(tweet) 
+        { 
+            return tweet["User Name"] == username
+        })
+        return {username, count}
+    })
+    console.log("map1:", map)
+
+    map = _.filter(map, function(d){ if(d.count != undefined && d.count.length != 0){return true} })
+   map = _.mapValues(map,function(d)
+   {
+        return d.count[0]["User Followers Count"]
+    })
+
+    return _.values(map).join(", ")
+
 }
 
 function solution5(){
-    return 'TODO'
+    var filterOriginal = _.filter(items, function(d){
+      return d["* Original Tweet Created At"] == ""
+    })
+    console.log('filterOriginal', filterOriginal)
+
+    var splitDate = _.map(filterOriginal, function(d){
+      return{
+        "date": d["* Tweet Created At"].split(" ")[0],
+        "time": d["* Tweet Created At"].split(" ")[1]
+      }
+    })
+
+    var filterByDate = _.filter(splitDate, function(d){
+      return d.date == '4/25/15'
+    })
+
+    var users = _.filter(items, function(d){
+      if(d["* Tweet Created At"].split(" ")[0] == '4/25/15' && d["* Original Tweet Created At"] == ""){
+        return d
+      }
+    })
+
+    var pluckNames = _.pluck(users, "User Screen Name")
+
+    return pluckNames.join(", ")
+
 }
 
 function solution6(){
-    return 'TODO'
+    var filterAM = _.filter(items, function(d){
+      return _.includes(d["* Tweet Created At"], 'AM')
+    }).length
+
+    var filterPM = _.filter(items, function(d){
+      return _.includes(d["* Tweet Created At"], 'PM')
+    }).length
+
+    return filterAM + " images were tweeted in the morning while " + filterPM + " images were tweeted in the evening."
 }
 
 function run(id, solutionFunc, data){
