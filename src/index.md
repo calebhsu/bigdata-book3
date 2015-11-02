@@ -13,3 +13,4 @@ layout: layout.hbs
 ## Hackathons
 
 * [Business Location](hackathons/business-location)
+* [Twitter Events](hackathons/twitter)
