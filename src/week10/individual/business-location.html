@@ -12,7 +12,7 @@
 
 <div class="container">
 
-    <h1>Where should we build X?</h1>
+    <h1>Where should we build a new bookstore?</h1>
 
     <section id="candidates" class="question">
         <h4>Where are the candidate locations?</h4>
@@ -36,14 +36,17 @@
 // Candidate Locations
 //
 
-function getCandidateLocations(){
+function getCandidateLocations(m, n){
   var locations = []
-  locations.push({latitude: 33.45, longitude: -112.03})
-  locations.push({latitude: 33.45, longitude: -112.04})
-  locations.push({latitude: 33.45, longitude: -112.05})
-  locations.push({latitude: 33.45, longitude: -112.06})
-  locations.push({latitude: 33.45, longitude: -112.07})
-  locations.push({latitude: 33.45, longitude: -112.08})
+  var latitude = 33.45
+  var longitude = -112.03
+
+  for(i = 0; i < m; i++){
+    for(j = 0; j < n; j++){
+      locations.push({latitude: latitude + (i*0.01), longitude: longitude - (j*0.01)})
+    }
+  }
+
   return locations
 }
 
@@ -52,29 +55,34 @@ function getCandidateLocations(){
 // Scoring Functions
 //
 
-function has_some_feature_1(loc){
-  // TODO
-  return true
+function has_no_bookstores_nearby(loc){
+  return _.filter(nearbyBusinesses, function(d) {
+    return _.includes(d.categories.join(', '), "Bookstores") && d.open
+  }).length == 0 
 }
 
-function has_some_feature_2(loc){
-  // TODO
-  return false
+function has_over_5_coffee_shops_nearby(loc){
+  return _.filter(nearbyBusinesses, function(d) {
+    return _.includes(d.categories.join(', '), "Coffee & Tea") && d.open
+  }).length > 5
 }
 
-function has_some_feature_3(loc){
-  // TODO
-  return true
+function has_no_libraries_nearby(loc){
+  return _.filter(nearbyBusinesses, function(d) {
+    return _.includes(d.name, 'Library') && d.open
+  }).length == 0 
 }
 
-function has_some_feature_4(loc){
-  // TODO
-  return false
+function has_over_5_educational_institutions_nearby(loc){
+  return _.filter(nearbyBusinesses, function(d) {
+    return _.includes(d.categories.join(', '), "Education") && d.open
+  }).length > 5
 }
 
-function has_some_feature_5(loc){
-  // TODO
-  return false
+function has_hipster_locations_nearby(loc){
+  return _.some(nearbyBusinesses, function(d){
+    return d.attributes.Ambience && (d.attributes.Ambience['hipster'] == true) && d.open
+  })
 }
 
 //
@@ -84,7 +92,16 @@ function has_some_feature_5(loc){
 function scoreAndVisualize(locs, scoreFunc, vizFunc){
 
   console.time('scoring ' + scoreFunc.name)
-  var scores = _.map(locs, scoreFunc)
+
+  var scores = _.map(locs, function(loc) {
+    nearbyBusinesses =  _.filter(items, function(item) {
+      var loc2  = _.pick(item, ['latitude', 'longitude'])
+      return geolib.getDistance(loc, loc2) <= 2500
+    })
+
+    return scoreFunc(loc, nearbyBusinesses)
+  })
+
   console.timeEnd('scoring ' + scoreFunc.name)
 
   var title = _.startCase(scoreFunc.name)
@@ -156,7 +173,7 @@ function visualize_true_or_false(domElement, locs, scores){
 var items = []
 function loadDataThenRunSolutions(){
 
-  var locs = getCandidateLocations()
+  var locs = getCandidateLocations(2, 6)
   visualize($('#candidates .map')[0], locs)
 
   $.get({url: 'http://bigdatahci2015.github.io/data/yelp/yelp_academic_dataset_business.phoenix.json.lines.txt'})
@@ -168,18 +185,18 @@ function loadDataThenRunSolutions(){
 
       // take only the last 2000 to speed up computation
       // TODO: comment this out before the final submission
-      items = _.takeRight(items, 2000)
+      // items = _.takeRight(items, 2000)
 
       console.log('number of items loaded:', items.length)
       console.log('first item:', items[0])
 
       console.log('scoring all candidate locations')
 
-      scoreAndVisualize(locs, has_some_feature_1, visualize_true_or_false)
-      scoreAndVisualize(locs, has_some_feature_2, visualize_true_or_false)
-      scoreAndVisualize(locs, has_some_feature_3, visualize_true_or_false)
-      scoreAndVisualize(locs, has_some_feature_4, visualize_true_or_false)
-      scoreAndVisualize(locs, has_some_feature_5, visualize_true_or_false)
+      scoreAndVisualize(locs, has_no_bookstores_nearby, visualize_true_or_false)
+      scoreAndVisualize(locs, has_over_5_coffee_shops_nearby, visualize_true_or_false)
+      scoreAndVisualize(locs, has_no_libraries_nearby, visualize_true_or_false)
+      scoreAndVisualize(locs, has_over_5_educational_institutions_nearby, visualize_true_or_false)
+      scoreAndVisualize(locs, has_hipster_locations_nearby, visualize_true_or_false)
 
    })
    .fail(function(err){

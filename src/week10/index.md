@@ -24,7 +24,7 @@ ul li {
 
 ## [Business Location](individual/business-location.html)
 * Independently perform a business location analysis. Pick a new business type.
-It should be different from the ones already usedin the hackathon.
+It should be different from the ones already used in the hackathon.
 * You must implement at least FIVE scoring functions.
 * _Enhancement 1:_ update `getCandidateLocations` to perform a grid-based search of M by N locations.
 * _Enhancement 2:_ improve speed by sharing "nearby" computation between scoring functions
