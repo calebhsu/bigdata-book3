@@ -41,7 +41,7 @@
     <div class="parallax">
       <img src="russia.jpg">
       <h1 id="title">What did people tweet about Russia?
-        <div class="authors">by Team ???: Name1, Name2, Name3, Name4, </div>
+        <div class="authors">by Team 3: Caleb Hsu, Zhili Yang, Andrew Linenfelser, Andrew Berumen, Andrey Shprengel</div>
       </h1>
     </div>
   </div>
@@ -59,8 +59,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.min.js"></script>
   <script>
 
-// TODO: replace this team id with your team name
-var TEAM_ID = 'team0' // e.g., team1, team2, team3, team4, or team5
+var TEAM_ID = 'team3' // e.g., team1, team2, team3, team4, or team5
 
 // create a firebase reference rooted at 'https://big-data-hci-hackathon.firebaseio.com/'
 var firebase = new Firebase('https://big-data-hci-hackathon.firebaseio.com/')
@@ -89,6 +88,7 @@ function update(tweet){
   // run a list of detector functions
   has_observed_five_tweets(tweets)
   has_observed_two_tweets_in_a_row_about_the_crash(tweets)
+  has_observed_10_tweets_about_IS_and_Syria(tweets)
 }
 
 function emit_event(message){
@@ -124,15 +124,40 @@ function has_observed_five_tweets(tweets){
 }
 
 function has_observed_two_tweets_in_a_row_about_the_crash(tweets){
-  // TODO: WARMUP - implement the correct logic to detect two tweets in a row
-  // mentioning the crash
-  if (Math.random() > 0.9){
-    emit_event('has observed two tweets about the crash in the row')
+  if(tweets.length >= 2) {
+
+    var last_two=[]
+    last_two.push(tweets[tweets.length-2])
+    last_two.push(tweets[tweets.length-1])
+
+    var crash=_.filter(last_two, function(t) {
+      if(t.text != undefined){
+        return _.include(t.text, "crash") || _.include(t.text, "Crash")
+      }
+      return false
+    })
+    console.log("crash: ", crash)
+    if (crash.length == 2) {
+      emit_event('has observed two consecutive tweets about the crash')
+    }
   }
 }
 
-function has_observed_something_interesting_1(tweets){
-  // TODO:
+function has_observed_10_tweets_about_IS_and_Syria(tweets){
+  var syria = []
+
+  syria = _.filter(tweets, function(t) {
+    if(t.text != undefined){
+      return (_.include(t.text, "Syria") || _.include(t.text, "syria")) && _.include(t.text, "IS")
+    }
+    return false
+  })
+
+  console.log(syria)
+
+  if ((syria.length % 3 == 0) && (syria.length > 0)) {
+    emit_event('is observing ' + syria.length + ' tweets about Syria and IS')
+  }
 }
 
 function has_observed_something_interesting_2(tweets){
