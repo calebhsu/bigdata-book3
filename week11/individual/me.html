@@ -1,0 +1,241 @@
+<html>
+<head>
+  <title>Me</title>
+    <style>
+        .answer {
+            min-height: 50px
+        }
+        section{
+          padding: 10px;
+          margin-bottom: 12px
+        }
+        #title {
+          position: absolute;
+          padding: 20px;
+          font-size: 64px;
+          font-weight: bolder;
+          color: white;
+          top: 50px;
+          left: 0px;
+          text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black
+        }
+        #title .authors {
+          padding: 20px;
+          font-size: 32px;
+          font-weight: bolder;
+          color: #BBB;
+          text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black
+        }
+        #tweets {
+          min-height: 300px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/css/materialize.min.css">
+</head>
+<body>
+
+  <div class="parallax-container"  style="height:300px">
+    <div class="parallax">
+      <img src="cloud.jpg">
+      <h1 id="title">What is my online activity?
+        <div class="authors">by Caleb Hsu</div>
+      </h1>
+    </div>
+  </div>
+
+  <div class="section white container flow-text">
+      <div id="questions" class="col s10 collection">
+      </div>
+  </div>
+
+  <script src="https://cdn.firebase.com/js/client/2.3.1/firebase.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/js/materialize.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.min.js"></script>
+  <script>
+
+var PERSONAL_FIREBASE_URL = 'https://calebhsu-bigdata-hci.firebaseio.com/'
+
+// add the personal firebase url to the class's firebase
+
+// load events from the personal firebase
+var personal_firebase = new Firebase(PERSONAL_FIREBASE_URL)
+personal_firebase
+  .child('events')
+  .on('value', function(snapshot){
+    var events = snapshot.val()
+    analyze(events)
+})
+
+function ask(func, events){
+  var answer = func(events)
+
+  // html element to display the answer
+  var answerHtml = '<div class="collection-item answer">' +
+      '<h4>' + _.startCase(func.name) + '? </h4>' +
+      '<div>' + answer + '</div>'
+    '</div>'
+
+  // append to #quetions
+  $('#questions').append(answerHtml)
+}
+
+function analyze(events){
+  console.log(events)
+
+  ask(when_did_i_start_collecting, events)
+  ask(how_many_emails_have_i_received_since, events)
+  ask(how_many_tasks_have_i_completed, events)
+  ask(how_many_new_tasks_have_been_created_for_Chinese, events)
+  ask(what_is_my_most_active_slack_channel, events)
+  ask(how_many_total_events_have_been_recorded_in_online_activity, events)
+  ask(when_do_new_emails_usually_come_in, events)
+  ask(when_do_I_ususally_update_gists, events)
+  ask(how_many_emails_do_i_receive_per_day, events)
+  ask(how_many_slack_messages_do_i_receive_per_day, events)
+  ask(what_is_the_most_common_hour_of_the_day_for_trello_activity, events)
+  ask(when_did_i_finish_collecting, events)
+}
+
+function when_did_i_start_collecting(events){
+  return 'I started collecting from ' + _.toArray(events.gmail)[0].date
+}
+
+function how_many_emails_have_i_received_since(events){
+  return 'I received ' + _.values(events.gmail).length + ' emails.'
+}
+
+function how_many_tasks_have_i_completed(events){
+  var done = _.filter(events.tasks, function(d) {
+    return d.completed
+  }).length
+
+  return 'I have completed ' + done + " out of " + _.values(events.tasks).length + " total new tasks."
+}
+
+function how_many_new_tasks_have_been_created_for_Chinese(events){
+  var bigData = _.filter(events.tasks, function(d) {
+    return _.includes(d.title, "CHIN")
+  }).length
+
+  return bigData + " new tasks have been created for my Chinese class."
+}
+
+function what_is_my_most_active_slack_channel(events){
+  var channel = _.groupBy(events.slack, function(d) {
+      return d.channel
+  })
+
+  channel = _.pairs(_.mapValues(channel, function(value, key) {
+      return _.size(value)
+  }))
+
+  channel = _.max(channel, function(value, key) {
+      return value[1]
+  })
+
+  return 'My most active Slack channel is ' + channel[0] + ', with ' + channel[1] + ' new messages.'
+}
+
+function how_many_total_events_have_been_recorded_in_online_activity(events){
+  var total = _.values(events.gist).length + _.values(events.gmail).length +
+  _.values(events.slack).length + _.values(events.tasks).length +  _.values(events.trello).length
+
+  return 'I have recorded ' + total + ' events total.'
+}
+
+function when_do_new_emails_usually_come_in(events){
+  var am = _.filter(events.gmail, function(d) {
+    if (d.date) {
+      if (_.include(d.date, "UTC")) {
+        // + 16 adjusts UTC to MTN time
+        return (d.date.split(' ')[4].split(':')[0] + 16) < 12
+      }
+      else {
+        return d.date.split(' ')[4].split(':')[0] < 12
+      }
+    }
+  }).length
+
+  var pm = _.filter(events.gmail, function(d) {
+    if (d.date) {
+      if (_.include(d.date, "UTC")) {
+        // + 16 adjusts UTC to MTN time
+        return (d.date.split(' ')[4].split(':')[0] + 16) >= 12
+      }
+      else {
+        return d.date.split(' ')[4].split(':')[0] > 12
+      }
+    }
+  }).length
+
+  if (am > pm) { return "I usually receive emails in the morning. "}
+  else if (am < pm) { return "I usually receive emails in the evening."}
+  else { return "There is no distinguishable difference in when my emails arrive."}
+}
+
+function when_do_I_ususally_update_gists(events){
+  var am = _.filter(events.gist, function(d) {
+    if (d.updated) {
+      return d.updated.split('T')[1].split(':')[0] < 12
+    }
+  }).length
+
+  var pm = _.filter(events.gist, function(d) {
+    if (d.updated) {
+      return d.updated.split('T')[1].split(':')[0] >= 12
+    }
+  }).length
+
+  if (am > pm) { return "I usually update Gists in the morning. "}
+  else if (am < pm) { return "I usually update Gists in the evening."}
+  else { return "There is no distinguishable difference in when I update my Gists."}
+}
+
+function how_many_emails_do_i_receive_per_day(events){
+  var start = _.toArray(events.gmail)[0].date.split(' ')[1]
+  var end = _.last(_.toArray(events.gmail)).date.split(' ')[1]
+
+  return 'I receive ' + _.values(events.gmail).length / (end - start) + ' emails per day on average.'
+}
+
+function how_many_slack_messages_do_i_receive_per_day(events){
+  var start = new Date(_.toArray(events.slack)[0].time * 1000).getDate()
+  var end = new Date(_.last(_.toArray(events.slack)).time * 1000).getDate()
+
+  return 'I receive ' + _.values(events.slack).length / (end - start) + ' Slack messages per day on average.'
+}
+
+function what_is_the_most_common_hour_of_the_day_for_trello_activity(events){
+  var group = _.groupBy(events.trello, function(d) {
+    if (d.date) {
+      return d.date.split('T')[1].split(':')[0]
+    }
+  })
+
+  group = _.pairs(_.mapValues(group, function(d) {
+    return d.length
+  }))
+
+  var max = _.max(group, function(value, key) {
+    return value[1]
+  })[0]
+  
+  return 'I see the most Trello activity at ' + max + ':00.'
+}
+
+function when_did_i_finish_collecting(events){
+  return 'I finished collecting from ' + _.last(_.toArray(events.gmail)).date
+}
+
+// initialize the parallax effect
+$(document).ready(function(){
+    $('.parallax').parallax()
+})
+
+    </script>
+
+</body>
+</html>

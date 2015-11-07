@@ -1,0 +1,226 @@
+<html>
+<head>
+  <title>Twitter Events - Team</title>
+    <style>
+        .answer {
+            min-height: 50px
+        }
+        section{
+          padding: 10px;
+          margin-bottom: 12px
+        }
+        #title {
+          position: absolute;
+          padding: 20px;
+          font-size: 64px;
+          font-weight: bolder;
+          color: white;
+          top: 50px;
+          left: 0px;
+          text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black
+        }
+        #title .authors {
+          padding: 20px;
+          font-size: 32px;
+          font-weight: bolder;
+          color: #BBB;
+          text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black
+        }
+        #tweets {
+          min-height: 300px;
+        }
+        .event {
+          color: red;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/css/materialize.min.css">
+</head>
+<body>
+
+  <div class="parallax-container"  style="height:300px">
+    <div class="parallax">
+      <img src="russia.jpg">
+      <h1 id="title">What did people tweet about Russia?
+        <div class="authors">by Team 3: Caleb Hsu, Zhili Yang, Andrew Linenfelser, Andrew Berumen, Andrey Shprengel</div>
+      </h1>
+    </div>
+  </div>
+
+  <div class="section white container flow-text">
+      <div id="tweets" class="col s10 collection">
+      </div>
+  </div>
+
+  <script src="https://cdn.firebase.com/js/client/2.3.1/firebase.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/js/materialize.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.min.js"></script>
+  <script>
+
+var TEAM_ID = 'team3' // e.g., team1, team2, team3, team4, or team5
+
+// create a firebase reference rooted at 'https://big-data-hci-hackathon.firebaseio.com/'
+var firebase = new Firebase('https://big-data-hci-hackathon.firebaseio.com/')
+
+// observe the data location 'https://big-data-hci-hackathon.firebaseio.com/russia'
+firebase
+  .child('russia')
+  .on('value', function(snapshot){
+    // this function is invoked each time there's update on the value
+    var tweet = snapshot.val()
+    update(tweet)
+})
+
+var tweets = []
+function update(tweet){
+  tweets.push(tweet)
+
+  console.log('new tweet', tweet, 'total observed', tweets.length)
+
+  // html element to display the new tweet
+  var newTweetHtml = '<div class="collection-item">' + tweet.text + '</div>'
+
+  // prepend to #tweets
+  $('#tweets').prepend(newTweetHtml)
+
+  // run a list of detector functions
+  has_observed_five_tweets(tweets)
+  has_observed_two_tweets_in_a_row_about_the_crash(tweets)
+  has_observed_10_tweets_about_IS_and_Syria(tweets)
+  has_observed_tweets_about_the_world_cup(tweets)
+  has_observed_tweets_about_bombings(tweets)
+  has_observed_bomb_tweet(tweets)
+}
+
+function emit_event(message){
+
+  var event = {
+    message: message,
+    createdAt: Firebase.ServerValue.TIMESTAMP // ref: https://www.firebase.com/docs/web/api/servervalue/timestamp.html
+  }
+
+  console.log('event detected:', event)
+
+  // html element to display the detected event
+  var eventHtml = '<div class="collection-item event">' + event.message + '</div>'
+
+  // prepend to #tweets
+  $('#tweets').prepend(eventHtml)
+
+  // post the event to firebase
+  firebase
+    .child('events')
+    .child(TEAM_ID)
+    .push()
+    .set(event)
+}
+
+//
+// Event Detectors
+//
+function has_observed_five_tweets(tweets){
+  if (tweets.length % 5 == 0) {
+    emit_event('has observed ' + tweets.length + ' tweets')
+  }
+}
+
+function has_observed_two_tweets_in_a_row_about_the_crash(tweets){
+  if(tweets.length >= 2) {
+
+    var last_two=[]
+    last_two.push(tweets[tweets.length-2])
+    last_two.push(tweets[tweets.length-1])
+
+    var crash=_.filter(last_two, function(t) {
+      if(t.text != undefined){
+        return _.include(t.text, "crash") || _.include(t.text, "Crash")
+      }
+      return false
+    })
+    console.log("crash: ", crash)
+    if (crash.length == 2) {
+      emit_event('has observed two consecutive tweets about the crash')
+    }
+  }
+}
+
+function has_observed_10_tweets_about_IS_and_Syria(tweets){
+  var syria = []
+
+  syria = _.filter(tweets, function(t) {
+    if(t.text != undefined){
+      return (_.include(t.text, "Syria") || _.include(t.text, "syria")) && _.include(t.text, "IS")
+    }
+    return false
+  })
+
+  console.log(syria)
+
+  if ((syria.length % 3 == 0) && (syria.length > 0)) {
+    emit_event('is observing ' + syria.length + ' tweets about Syria and IS')
+  }
+}
+
+function has_observed_tweets_about_the_world_cup(tweets){
+  if(tweets.length >= 2){
+
+    var last_two=[]
+    last_two.push(tweets[tweets.length-2])
+    last_two.push(tweets[tweets.length-1])
+    var world=_.filter(last_two, function(t){
+
+      if(t.text != undefined){
+        return _.include(t.text, "world cup") || _.include(t.text, "World Cup")
+      }
+      return false
+    })
+    console.log("world cup: ", world)
+    if (world.length > 0) {
+      emit_event('has observed ' + world.length + ' world cup tweets')
+    }
+  }
+}
+
+
+
+function has_observed_tweets_about_bombings(tweets){
+  var tweet = []
+  var counter = 0
+  var filterTweets = _.filter(tweets, function(d){
+    counter += 1
+    if(d['text'].match(/Bombing/)){
+      return d
+    }
+  })
+  if(filterTweets.length > counter - 1){
+    emit_event('has observed something about Syria')
+
+  }
+}
+
+
+function has_observed_bomb_tweet(tweets){
+  var bomb = _.filter(tweets, function(d){
+    return _.includes(d.text, 'bomb') || _.includes(d.text, 'Bomb')
+  })
+
+  console.log('bomb', bomb)
+  if(bomb.length > 0){
+    console.log('_____BOMB_____')
+    emit_event('has observed bomb tweet')
+    
+  }
+}
+
+
+// initialize the parallax effect
+$(document).ready(function(){
+    $('.parallax').parallax()
+})
+
+    </script>
+
+</body>
+</html>
