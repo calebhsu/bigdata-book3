@@ -89,6 +89,9 @@ function update(tweet){
   has_observed_five_tweets(tweets)
   has_observed_two_tweets_in_a_row_about_the_crash(tweets)
   has_observed_10_tweets_about_IS_and_Syria(tweets)
+  has_observed_tweets_about_the_world_cup(tweets)
+  has_observed_tweets_about_bombings(tweets)
+  has_observed_bomb_tweet(tweets)
 }
 
 function emit_event(message){
@@ -160,23 +163,55 @@ function has_observed_10_tweets_about_IS_and_Syria(tweets){
   }
 }
 
-function has_observed_something_interesting_2(tweets){
-  // TODO:
+function has_observed_tweets_about_the_world_cup(tweets){
+  if(tweets.length >= 2){
+
+    var last_two=[]
+    last_two.push(tweets[tweets.length-2])
+    last_two.push(tweets[tweets.length-1])
+    var world=_.filter(last_two, function(t){
+
+      if(t.text != undefined){
+        return _.include(t.text, "world cup") || _.include(t.text, "World Cup")
+      }
+      return false
+    })
+    console.log("world cup: ", world)
+    if (world.length > 0) {
+      emit_event('has observed ' + world.length + ' world cup tweets')
+    }
+  }
 }
 
 
-function has_observed_something_interesting_3(tweets){
-  // TODO:
+
+function has_observed_tweets_about_bombings(tweets){
+  var tweet = []
+  var counter = 0
+  var filterTweets = _.filter(tweets, function(d){
+    counter += 1
+    if(d['text'].match(/Bombing/)){
+      return d
+    }
+  })
+  if(filterTweets.length > counter - 1){
+    emit_event('has observed something about Syria')
+
+  }
 }
 
 
-function has_observed_something_interesting_4(tweets){
-  // TODO:
-}
+function has_observed_bomb_tweet(tweets){
+  var bomb = _.filter(tweets, function(d){
+    return _.includes(d.text, 'bomb') || _.includes(d.text, 'Bomb')
+  })
 
-
-function has_observed_something_interesting_5(tweets){
-  // TODO:
+  console.log('bomb', bomb)
+  if(bomb.length > 0){
+    console.log('_____BOMB_____')
+    emit_event('has observed bomb tweet')
+    
+  }
 }
 
 

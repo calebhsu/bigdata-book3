@@ -94,12 +94,10 @@ correctly, and also what other teams are up to in real-time.
 
 The team members who contributed to this hackathon are:
 
-- (Name)
-- (Name)
-- (Name)
-- (Name)
-- (Name)
-- (Name)
+- Caleb Hsu
+- Zhili Yang
+- Andrew Linenfelser
+- Andrew Berumen
 
 ## Grading
 
@@ -109,16 +107,18 @@ Each person must implement at least ONE detector function. It must be meaningful
 
 Our team came up with the following interesting events:
 
-1. Has observed .... ? contributed by (Name)
+1. Has observed 10 tweets about IS and Syria? (Caleb Hsu)
 
-  (one sentence justification why this event is interesting)
+  It appears that IS and Syria frequently appear together in a tweet, probably due to the increasing activity of IS in that region. Russia has also been playing a role in the civil war in Syria, which is probably why those tweets are appearing in relation to Russia.
 
-1. Has observed .... ? contributed by (Name)
+1. Has observed tweets about the World Cup ? (Zhili Yang)
 
-  (one sentence justification why this event is interesting)
+  Russia seems to be hosting the World Cup for 2018, so it is interesting to see a number of tweets regarding the World Cup despite news of the plane crash.
 
-1. Has observed .... ? contributed by (Name)
+1. Has observed tweets about the bombings? (Andrew Berumen)
 
-  (one sentence justification why this event is interesting)
+  Russia has had a number of airstrikes in Syria, which is overriding news about the crash of the Russian airplane in Egypt.
 
-(add more until you hit N where N is the number of people on your team)
+1. Has observed tweets about a bomb? (Andrew Linenfelser)
+
+  Among other news, there seems to be a lot going on as far as bombings go in relation to Russia due to its activity in Syria.
