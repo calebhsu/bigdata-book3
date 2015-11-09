@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>Me</title>
+  <title>Class</title>
     <style>
         .answer {
             min-height: 50px
@@ -38,7 +38,7 @@
     <div class="parallax">
       <img src="cloud.jpg">
       <h1 id="title">What is everyone in the class's activity?
-        <div class="authors">by Name</div>
+        <div class="authors">by Caleb Hsu</div>
       </h1>
     </div>
   </div>
@@ -121,64 +121,219 @@ function analyze(events){
 
   ask(how_many_individuals_analyzed_so_far, events)
   ask(whose_data_is_available, events)
-  ask(question1, events)
-  ask(question2, events)
-  ask(question3, events)
-  ask(question4, events)
-  ask(question5, events)
-  ask(question6, events)
-  ask(question7, events)
-  ask(question8, events)
-  ask(question9, events)
-  ask(question10, events)
+  ask(how_many_online_accounts_were_analyzed_total, events)
+  ask(how_many_individuals_only_analyzed_their_gmail, events)
+  ask(who_connected_the_most_online_accounts, events)
+  ask(how_many_unique_online_accounts_were_analyzed_and_what_were_they, events)
+  ask(how_many_emails_have_been_received_on_average, events)
+  ask(how_many_users_did_not_include_a_pathname_for_an_account, events)
+  ask(which_account_was_most_commonly_connected_aside_from_gmail, events)
+  ask(which_accounts_were_least_commonly_connected, events)
+  ask(how_many_slack_messages_have_been_received_on_average, events)
+  ask(are_there_more_twitter_or_youtube_users, events)
 }
 
 function how_many_individuals_analyzed_so_far(events){
+  // console.log(events)
   return _.keys(events).length
 }
 
 function whose_data_is_available(events){
-  return _.keys(events).join(' , ')
+  return _.keys(events).join(', ')
 }
 
-function question1(events){
-  return '...'
+function how_many_online_accounts_were_analyzed_total(events){
+  // just gets info about connected accounts
+  var events = _.values(events)
+
+  // returns arrays of account names only
+  var accountMap = _.map(events, function(d) {
+    return _.keys(d)
+  })
+
+  // handles case where user didn't specify pathname correctly
+  accountMap = _.filter(accountMap, function(d) {
+    return !(_.startsWith(d, '-K'))
+  })
+  var all = _.flatten(accountMap).length
+
+  return all + ' online accounts were analyzed total.'
 }
 
-function question2(events){
-  return '...'
+function how_many_individuals_only_analyzed_their_gmail(events){
+  var accountMap = _.mapValues(events, function(d) {
+    return _.keys(d)
+  })
+
+  var gmail = _.filter(accountMap, function(d) {
+    return _.includes(d, 'gmail') && (d.length == 1)
+  }).length
+  
+  return gmail + ' individuals only analyzed their Gmails.'
 }
 
-function question3(events){
-  return '...'
+function who_connected_the_most_online_accounts(events){
+  // ensures individuals created separate folders for each account
+  // assumes every user included gmail
+  var accountMap = _.mapValues(events, function(d) {
+    if (_.includes(_.keys(d), 'gmail'))
+      return _.keys(d).length
+  })
+
+  var max = _.max(accountMap)
+  var users = _.pull(_.map(accountMap, function(value, key) {
+    if (value == max)
+      return key
+  }), undefined)
+
+  return 'The users that connected the most online accounts were ' + users.join(', ') + ' with ' + max + ' accounts each.'
 }
 
-function question4(events){
-  return '...'
+function how_many_unique_online_accounts_were_analyzed_and_what_were_they(events){
+  // just gets info about connected accounts
+  var events = _.values(events)
+
+  // returns arrays of account names only
+  var accountMap = _.map(events, function(d) {
+    return _.keys(d)
+  })
+
+  // handles case where user didn't specify pathname correctly
+  accountMap = _.filter(accountMap, function(d) {
+    return !(_.startsWith(d, '-K'))
+  })
+
+  var unique = _.uniq(_.flatten(accountMap))
+
+  return unique.length + ' unique online accounts were analyzed, specifically ' + unique.join(', ') + '.'
 }
 
-function question5(events){
-  return '...'
+function how_many_emails_have_been_received_on_average(events){
+  // checks whether users included email in their accounts
+  var gmail = _.mapValues(events, function(d) {
+    if (_.includes(_.keys(d), 'gmail'))
+      return _.values(d.gmail).length
+  })
+
+  var avg = _.sum(gmail) / _.keys(events).length
+
+  return 'The class has received ' + avg.toFixed(2) + ' emails on average.'
 }
 
-function question6(events){
-  return '...'
+function how_many_users_did_not_include_a_pathname_for_an_account(events){
+  // just gets info about connected accounts
+  var events = _.values(events)
+
+  // returns arrays of account names only
+  var accountMap = _.map(events, function(d) {
+    return _.keys(d)
+  })
+
+  accountMap = _.filter(accountMap, function(d) {
+    return (_.startsWith(d, '-K'))
+  })
+
+  return accountMap.length + ' user did not include a pathname for the account(s) they linked.'
 }
 
-function question7(events){
-  return '...'
+function which_account_was_most_commonly_connected_aside_from_gmail(events){
+  // just gets info about connected accounts
+  var events = _.values(events)
+
+  // returns arrays of account names only
+  var accountMap = _.map(events, function(d) {
+      return _.keys(d)
+  })
+
+  // handles case where user didn't specify pathname correctly
+  accountMap = _.filter(accountMap, function(d) {
+    return !(_.startsWith(d, '-K')) 
+  })
+
+  // flattens array, removes occurrences of gmail
+  var common = _.pull(_.flatten(accountMap), 'gmail')
+  var max = _.max(_.countBy(common))
+
+  common = _.pull(_.map(_.countBy(common), function(value, key) {
+    if (value == max)
+      return key
+  }), undefined)
+
+  return 'The most commonly connected account aside from Gmail was ' + common + '.'
 }
 
-function question8(events){
-  return '...'
+function which_accounts_were_least_commonly_connected(events){
+  // just gets info about connected accounts
+  var events = _.values(events)
+
+  // returns arrays of account names only
+  var accountMap = _.map(events, function(d) {
+      return _.keys(d)
+  })
+
+  // handles case where user didn't specify pathname correctly
+  accountMap = _.filter(accountMap, function(d) {
+    return !(_.startsWith(d, '-K')) 
+  })
+
+  // flattens array
+  var common = _.flatten(accountMap)
+  var min = _.min(_.countBy(common))
+
+  common = _.pull(_.map(_.countBy(common), function(value, key) {
+    if (value == min)
+      return key
+  }), undefined)
+
+  return 'The least commonly connected accounts were ' + common.join(', ') + '.'
 }
 
-function question9(events){
-  return '...'
+function how_many_slack_messages_have_been_received_on_average(events){
+  // checks whether users included slack in their accounts
+  var slack = _.mapValues(events, function(d) {
+    if (_.includes(_.keys(d), 'slack'))
+      return _.values(d.slack).length
+  })
+
+  // counts number of slack users, removing undefined
+  var slackUse = _.pull(_.map(slack, function(value, key) {
+    if (value !== undefined)
+        return key
+  }), undefined).length
+
+  var avg = _.sum(slack) / slackUse
+
+  return 'Slack users in the class received ' + avg.toFixed(2) + ' slack messages on average.'
 }
 
-function question10(events){
-  return '...'
+function are_there_more_twitter_or_youtube_users(events){
+  // Twitter
+  // checks whether users included twitter in their accounts
+  var twitter = _.mapValues(events, function(d) {
+    if (_.includes(_.keys(d), 'twitter'))
+      return _.values(d.twitter).length
+  })
+  // counts number of Twitter users, removing undefined
+  var twitterUse = _.pull(_.map(twitter, function(value, key) {
+    if (value !== undefined)
+        return key
+  }), undefined).length
+
+  // Youtube
+  // checks whether users included youtube in their accounts
+  var yt = _.mapValues(events, function(d) {
+    if (_.includes(_.keys(d), 'youtube'))
+      return _.values(d.youtube).length
+  })
+  // counts number of Youtube users, removing undefined
+  var ytUse = _.pull(_.map(yt, function(value, key) {
+    if (value !== undefined)
+        return key
+  }), undefined).length
+
+  if (twitterUse > ytUse) { return 'There are more Twitter users.' }
+  else if (twitterUse < ytUse) { return 'There are more YouTube users.' }
+  else { return 'There are an equal number of Twitter and YouTube users'}
 }
 
 
