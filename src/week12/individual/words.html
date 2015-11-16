@@ -350,12 +350,44 @@ function func10(){
   // For example, war => 100111001, where 1 means UP, 0 means down.
   // Then identify those with the exact encoding.
 
+  // preparing war data
   var war = _.filter(items, function(d) {
     return d.word == "war"
   })
+  var warRank = _.pluck(war, 'rank')
 
+  var str = ''
+  for (i = 0; i < warRank.length - 1; i++) {
+      if ((parseInt(warRank[i + 1]) - parseInt(warRank[i])) < 0)
+        str += 1
+      else 
+        str += 0
+  }
 
-  return '...'
+  // other words
+  var words = _.groupBy(items, 'word')
+  
+  // maps each word to its binary value
+  words = _.mapValues(words, function(d) {
+    var wordsRank = _.pluck(d, 'rank')
+    var wordsStr = ''
+    for (i = 0; i < wordsRank.length - 1; i++) {
+      if ((parseInt(wordsRank[i + 1]) - parseInt(wordsRank[i])) < 0)
+        wordsStr += 1
+      else 
+        wordsStr += 0
+    }
+    return wordsStr
+  })
+
+  var similar = _.pull(_.map(words, function(value, key) {
+    if (value == str)
+      return key
+  }), undefined)
+
+  similar = _.difference(similar, ['war'])
+  
+  return 'In terms of changes in popularity, terms most similar to <b>war</b> include <i>' + similar.join(', ') + '</i>.'
 }
 
 // initialize the parallax effect
