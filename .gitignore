@@ -27,3 +27,8 @@ build/Release
 node_modules
 
 .DS_Store
+
+# Private Files
+src/week12/team
+src/week12/profiles.json
+src/week12/services.json
