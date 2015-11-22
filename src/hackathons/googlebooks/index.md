@@ -15,7 +15,6 @@ Report: [report.html](report.html)
 
 The team members who contributed to this hackathon are:
 
-- (Name)
-- (Name)
-- (Name)
-- (Name)
+- Caleb Hsu
+- Satchel Spencer
+- Parker Illig
