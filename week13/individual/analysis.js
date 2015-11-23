@@ -39,7 +39,7 @@ function analyze(){
   // say, your answer to Question Six is 13, draw a marker for each measurement that has
   // at least one sample whose value is 13
 
-  ask('how does the desensity of valid sample values change across the geographical area?', func10)
+  ask('how does the density of valid sample values change across the geographical area?', func10)
   // use the brightness to indicate high number of valid sample values each
   // for each measurement, draw a marker,
   // use the brightness to represent the number of valid samples
@@ -74,65 +74,306 @@ function example3(){
 }
 
 function func1(){
-  return '...'
+  var samples = _.flatten(_.pluck(items, 'Samples'))
+  samples = _.uniq(_.filter(samples, function(d) {
+    return d > 0
+  }))
+
+  return 'The unique, non-negative, nonzero sample values are ' + samples.join(", ") + '.'
 }
 
 function func2(){
-  return '...'
+  var pairs = _.pairs(items)
+  var difference = []
+
+  // Thanks again Parker
+  for (var i = 0; i < items.length - 1; i++) {
+    var first = pairs[i][1].Ping_time.split(':')
+    var second = pairs[i + 1][1].Ping_time.split(':')
+
+    if (parseInt(second[2]) > parseInt(first[2])) {
+      var diff = parseInt(second[2]) - parseInt(first[2])
+      difference.push(diff)
+    }
+  }
+
+  var avg = _.sum(difference) / difference.length
+  return 'The average time between two measurements was ' + avg.toFixed(2) + ' seconds.'
 }
 
 function func3(){
-  return '...'
+  var time = _.filter(items, function(d) {
+    return d['Ping_time'] == "09:57:18"
+  })
+
+  time = _.flatten(_.pluck(time, 'Samples'))
+
+  time = _.filter(time, function(d) {
+    return _.includes(d, "7.000000")
+  }).length
+
+  return time + ' samples in this measurement have the value 7.'
 }
 
 function func4(){
-  return '...'
+  var group = _.groupBy(items, 'Ping_time')
+
+  // maps number of elements in array that includes a 3 to the time
+  group = _.mapValues(group, function(d) {
+    return _.filter(d[0].Samples, function(e) {
+      return _.includes(e, "3.000000")
+    }).length
+  })
+
+  var max = _.max(group)
+
+  group = _.pull(_.map(group, function(value, key) {
+    if (value == max)
+      return key
+  }), undefined)
+
+  return 'The measurement occurred at ' + group + '.'
 }
 
 function func5(){
-  return '...'
+  var neg = _.filter(items, function(d) {
+    return (_.max(d.Samples) <= 0)
+  })
+
+  return neg.length + ' measurements have no sample value greater than 0.'
 }
 
 function func6(){
-  return '...'
+  var valid = _.flatten(_.pluck(items, 'Samples'))
+
+  valid = _.countBy(_.filter(valid, function(d) {
+    return d > 0
+  }))
+
+  var max = _.max(valid)
+
+  valid = _.pull(_.map(valid, function(value, key) {
+    if (value == max)
+      return key
+  }), undefined)
+
+  return 'The most common valid sample value is ' + valid + '.'
 }
 
 function func7(){
+  var ny = [40.7127, -74.0059]
+  var nyObj = {'latitude': 40.7127, 'longitude': -74.0059}
 
-  // this sample code shows how to display a map and put a marker to visualize
-  // the location of the first item (i.e., measurement data)
-  // you need to adapt this code to answer the question
+  // collection of all distances to NY
+  var dist = []
+  _.forEach(items, function(d) {
+    var pos = {'latitude': d.Latitude, 'longitude': d.Longitude}
+    var length = geolib.getDistance(nyObj, pos)
+    dist.push(length)
+  })
 
-  var first = items[0]
-  var pos = [first.Latitude, first.Longitude]
   var el = $(this).find('.viz')[0]    // lookup the element that will hold the map
   $(el).height(500) // set the map to the desired height
-  var map = createMap(el, pos, 5)
+  var map = createMap(el, ny, 5)
 
-  var circle = L.circle(pos, 500, {
+  var max = _.max(dist)
+
+  var filt = _.filter(items, function(d) {
+    var tempCoord = {'latitude': d.Latitude, 'longitude': d.Longitude}
+
+    // Plots furthest boat
+    if (geolib.getDistance(nyObj, tempCoord) == max) { 
+       var furthest = [d.Latitude, d.Longitude]
+       var circle = L.circle(furthest, 500, {
+           color: 'red',
+           fillColor: '#f03',
+           fillOpacity: 0.5
+       }).addTo(map)
+       return d
+     }
+ })
+
+  // gets time
+  var time = filt[0]['Ping_time']
+
+  // Plots New York City
+  var circle = L.circle(ny, 500, {
       color: 'red',
       fillColor: '#f03',
       fillOpacity: 0.5
   }).addTo(map);
-  return '...'
-}
+
+  return 'The boat was furthest away at ' + time + ' with a distance of ' + max + '.'
+ }
 
 function func8(){
-  return '...'
+  var ny = [40.7127, -74.0059]
+  var nyObj = {'latitude': 40.7127, 'longitude': -74.0059}
+
+  // collection of all distances to NY
+  var dist = []
+  _.forEach(items, function(d) {
+    var pos = {'latitude': d.Latitude, 'longitude': d.Longitude}
+    var length = geolib.getDistance(nyObj, pos)
+    dist.push(length)
+  })
+
+  var el = $(this).find('.viz')[0]    // lookup the element that will hold the map
+  $(el).height(500) // set the map to the desired height
+  var map = createMap(el, ny, 5)
+
+  // Finds maximum distance, compare to all distances of all other coords
+  var max = _.max(dist)
+
+  var filt = _.filter(items, function(d) {
+    var tempCoord = {'latitude': d.Latitude, 'longitude': d.Longitude}
+
+    // Plots furthest boat
+    if (geolib.getDistance(nyObj, tempCoord) == max) { 
+       var furthest = [d.Latitude, d.Longitude]
+       var circle = L.circle(furthest, 500, {
+           color: 'red',
+           fillColor: '#f03',
+           fillOpacity: 0.5
+       }).addTo(map)
+       return d
+     }
+ })
+
+  // gets time & coordinates
+  var time = filt[0]['Ping_time']
+  var boat = [parseFloat(filt[0].Latitude), parseFloat(filt[0].Longitude)]
+
+  // Plots New York City
+  var circle = L.circle(ny, 500, {
+      color: 'red',
+      fillColor: '#f03',
+      fillOpacity: 0.5
+  }).addTo(map);
+
+  // combined coordinates of NYC & boat, plots line between them
+  var coords = [boat, ny]
+  var polyline = L.polyline(coords, {color: 'yellow'}).addTo(map);
 }
 
 function func9(){
-  return '...'
+  // Most common sample value
+  var valid = _.flatten(_.pluck(items, 'Samples'))
+
+  valid = _.countBy(_.filter(valid, function(d) {
+    return d > 0
+  }))
+
+  var max = _.max(valid)
+
+  valid = _.pull(_.map(valid, function(value, key) {
+    if (value == max)
+      return key
+  }), undefined)
+
+  var common = _.filter(items, function(d) {
+    return _.includes(d.Samples, valid[0])
+  })
+
+  var first = common[0]
+  var pos = [first.Latitude, first.Longitude]
+
+  var el = $(this).find('.viz')[0]    // lookup the element that will hold the map
+  $(el).height(500) // set the map to the desired height
+  var map = createMap(el, pos, 15)
+
+  _.forEach(common, function(c) {
+    L.circle([c.Latitude, c.Longitude], 5, {color: 'red'}).addTo(map);
+  })
 }
 
 function func10(){
+  var first = items[0]
+  var pos = [first.Latitude, first.Longitude]
+
+  var el = $(this).find('.viz')[0]    // lookup the element that will hold the map
+  $(el).height(500) // set the map to the desired height
+  var map = createMap(el, pos, 15)
+
+  _.forEach(items, function(d) {
+    var valid = _.filter(d.Samples, function(e) {
+      return e > 0
+    }).length
+
+    L.circle([d.Latitude, d.Longitude], 5, {
+      color: 'blue',
+      fillColor: 'blue',
+      fillOpacity: 0.5
+    }).addTo(map);
+
+  })
+
   return '...'
 }
 
 function func11(){
-  return '...'
+  var first = items[0]
+  var pos = [first.Latitude, first.Longitude]
+
+  var el = $(this).find('.viz')[0]    // lookup the element that will hold the map
+  $(el).height(500) // set the map to the desired height
+  var map = createMap(el, pos, 13)
+
+  _.forEach(items, function(d) {
+    // fish at lower frequencies (1 & 3 & 4)
+    // list of things to filter for (help cred: Parker)
+    if (_.includes(d.Samples, '1.000000') 
+      || _.includes(d.Samples, '3.000000') 
+      || _.includes(d.Samples, '4.000000')
+      || _.includes(d.Samples, '8.000000')
+      || _.includes(d.Samples, '10.000000')
+      || _.includes(d.Samples, '30.000000')
+      || _.includes(d.Samples, '32.000000') 
+      || _.includes(d.Samples, '33.000000')
+      || _.includes(d.Samples, '37.000000')
+      || _.includes(d.Samples, '45.000000') 
+      || _.includes(d.Samples, '53.000000')) {
+
+      var coord = [d.Latitude, d.Longitude]
+      var circle = L.circle(coord, 2, {
+          color: 'orange',
+          fillColor: 'orange',
+          fillOpacity: 0.5
+        }).addTo(map);
+    }
+  })
 }
 
 function func12(){
-  return '...'
+  var first = items[0]
+  var pos = [first.Latitude, first.Longitude]
+
+  var el = $(this).find('.viz')[0]    // lookup the element that will hold the map
+  $(el).height(500) // set the map to the desired height
+  var map = createMap(el, pos, 13)
+
+  _.forEach(items, function(d) {
+    // plankton at higher frequencies
+    // list of things to filter for (help cred: Parker)
+    if (_.includes(d.Samples, '7.000000')
+      || _.includes(d.Samples, '8.000000')  
+      || _.includes(d.Samples, '10.000000') 
+      || _.includes(d.Samples, '13.000000') 
+      || _.includes(d.Samples, '20.000000')
+      || _.includes(d.Samples, '36.000000') 
+      || _.includes(d.Samples, '37.000000') 
+      || _.includes(d.Samples, '40.000000') 
+      || _.includes(d.Samples, '42.000000')
+      || _.includes(d.Samples, '45.000000') 
+      || _.includes(d.Samples, '49.000000')       
+      || _.includes(d.Samples, '53.000000')) {
+
+      var coord = [d.Latitude, d.Longitude]
+      var circle = L.circle(coord, 2, {
+          color: 'green',
+          fillColor: '#green',
+          fillOpacity: 0.5
+        }).addTo(map);
+    }
+  })
 }

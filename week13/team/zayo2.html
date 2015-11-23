@@ -1,0 +1,453 @@
+<html>
+<head>
+    <style>
+        .answer {
+            min-height: 50px
+        }
+        section{
+          padding: 10px;
+          margin-bottom: 12px
+        }
+        .parallax-container {
+          height: 300
+        }
+        .popup {
+            width: 500;
+            height: 500;
+        }
+        #title {
+          position: absolute;
+          padding: 20px;
+          font-size: 64px;
+          font-weight: bolder;
+          color: white;
+          top: 100px;
+          left: 0px;
+          text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black
+        }
+        #title .authors {
+          padding: 20px;
+          font-size: 32px;
+          font-weight: bolder;
+          color: #BBB;
+          text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black
+        }
+        #map { height: 1000px; }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/css/materialize.min.css">
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.9.4/chartist.min.css">
+</head>
+<body>
+
+  <div class="parallax-container">
+    <div class="parallax">
+      <img src="zayo-numbers.png">
+    </div>
+  </div>
+
+  <div class="section white container flow-text">
+
+      <div id="questions" class="collection with-header">
+          <div class="collection-header">Week 13 Questions (tranzact data set)</div>
+          <section id="q1" class="question collection-item">
+              <h4>Q1: Of the Tranzact accounts that have services: What industries/verticals spend the most
+money and on what products/services?</h4>
+              <div class="answer"></div>
+          </section>
+          <section id="q2" class="question collection-item">
+              <h4>Q2: If Zayo only had enough team members to focus on two products, which products would
+you prioritize?</h4>
+              <div class="answer"></div>
+          </section>
+          <section id="q3" class="question collection-item">
+              <h4>Q3: If Zayo only had 5 representatives, which states would you prioritize for inperson
+meetings?</h4>
+              <div class="answer"></div>
+          </section>
+          <section id="q4" class="question collection-item">
+              <h4>Q4: If Zayo sent quotes to all Tranzact accounts, how would you prioritize the customer
+account list? (And list the prioritized accounts from 1 to ####)</h4>
+              <div class="answer"></div>
+          </section>
+          <section id="q5" class="question collection-item">
+              <h4>Q5: Of the Tranzact accounts without services: How would you prioritize which accounts to
+go after first and which products would they potentially buy?</h4>
+              <div class="answer"></div>
+          </section>
+  </div>
+
+  <div class="parallax-container" style="height:200px">
+    <div class="parallax">
+      <img src="zayo-numbers.png">
+    </div>
+  </div>
+
+
+  <div class="section white container flow-text">
+    <div class="markdown">
+
+    </div>
+  </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/js/materialize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.min.js"></script>
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script>
+    <script src="http://bigdatahci2015.github.io/data/js/geolib.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.9.4/chartist.min.js"></script>
+    <script>
+
+// Global scope (i.e., can be accessed in javascript console)
+var serviceItems
+var profileItems
+var noServiceItems
+
+// Process data functions
+
+function solution1() {
+  // Of the Tranzact accounts that have services: What industries/verticals 
+  // spend the most money and on what products/services?
+
+  // q1 print control
+  var print = 0
+
+  // Group the profileItems by "Industry"
+  var industryGroups = _.groupBy(profileItems, 'Industry')
+
+  // Subgroup the profileItems grouped by "Industry" by "Vertical"
+  var industryVertical = _.map(industryGroups, function(d) {
+    return _.groupBy(d, 'Vertical')
+  })
+
+  var integratedFields = _.map(industryVertical, function(d) {
+
+    var vertical = _.map(d, function(f) {
+      var sumBRR = 0
+      var cnt = 0
+      var Industry
+      var Vertical
+      var accountArray = []
+      var zeroArray = []
+      var pick = 0
+      var fields = _.map(f, function(g) {
+        if (pick == 0) {
+          Industry = g['Industry']
+          Vertical = g['Vertical']
+          pick++
+        }
+        sumBRR += parseFloat(g['Total BRR'])
+        if (parseInt(g['Total BRR']) == 0) { zeroArray[zeroArray.length] = g['Name/ID'] }
+        else { accountArray[accountArray.length] = g['Name/ID'] }
+        cnt++
+      })
+
+      if (print) { console.log('==> ' + Industry +'/' + Vertical + ': TOTAL BRR = ' + sumBRR + ' AVERAGE BRR = ', _.round(sumBRR/cnt, 2)) }
+      if (print) { console.log('accountArray', accountArray) }
+      var IndustryVertical = Industry +'/' + Vertical
+      var totalBRR = sumBRR
+      var averageBRR = _.round(sumBRR/cnt, 2)
+
+      // For each ID in Accounts[] get the Product and Total MRR from serviceItems data set
+      var serviceData =  _.map(accountArray, function(i) {
+        return _.filter(serviceItems, function(j) {
+          return j['Name/ID'] == i
+        })
+      })
+
+      var productArray = []
+      var MRRArray = []
+      var totalMRR = 0
+      var productMRR = _.map(serviceData, function(d) {
+        var items = _.map(d, function(f) {
+          productArray[productArray.length] = f['Product']
+          MRRArray[MRRArray.length] = f['Total MRR']
+          totalMRR += parseFloat(f['Total MRR'])
+        })
+      })
+ 
+      if (print) {
+        console.log('==> ' + IndustryVertical + '(' + accountArray.length + ')  Total MRR: ' + _.round(totalMRR,2))
+        console.log('==> ' + 'on Products: ' + _.uniq(productArray))
+        console.log('    ')
+      }
+
+      return { "Industry": Industry, "Vertical": Vertical, "Industry/Vertical": IndustryVertical, "TotalBRR": totalBRR, "AverageBRR": averageBRR, "Accounts": accountArray, "ZeroAccounts": zeroArray, "Products": productArray, "ProductMRR": MRRArray, "Industry/VerticalTotalMRR": _.round(totalMRR,2), "Services": serviceData }
+    })
+    return vertical
+  })
+  if (print) { console.log('integratedFields', integratedFields) }
+
+  // Generate data for visualizations (from global var integrated fields
+  // Viz-1: Industry/Vertical vs. Industry/VerticalTotalMRR
+
+  // integratedFields is an array of arrays of objects; build the chartLabels
+  // and chartSeries arrays for plotting via Chartist
+
+  var Labels = _.map(integratedFields, function(d) {
+    return _.map(d, function(f) {
+      return f['Industry/Vertical']
+    })
+  })
+  var Series = _.map(integratedFields, function(d) {
+    return _.map(d, function(f) {
+      return f['Industry/VerticalTotalMRR']
+    })
+  })
+
+  var pairs = _.zip(_.flatten(Labels), _.flatten(Series))
+  var sortedPairs = _.sortBy(pairs, function(d) {
+    return -d[1]
+  })
+  var chartLabels = _.map(sortedPairs, function(d) { return d[0] })
+  var chartSeries = _.map(sortedPairs, function(d) { return d[1] })
+  
+  var data = {
+    labels: _.take(chartLabels, 8),
+    series: [ _.take(chartSeries, 8) ]
+  }
+  new Chartist.Bar('#q1 .answer', data);
+
+  // noServiceItems access
+  var noServiceGroups = _.groupBy(noServiceItems, 'Name/ID')
+
+  // Caleb's Text Analysis
+  // since some industry names have /, which causes confusion between the industry and product
+  if ((_.first(sortedPairs)[0].split("/")).length == 3)
+    var industryName = _.first(sortedPairs)[0].split("/")[0] + ' / ' + _.first(sortedPairs)[0].split("/")[1]
+  else 
+    var industryName = _.first(sortedPairs)[0].split("/")[0]
+
+  return 'According to our analysis, the industry that currently spends the most is the <b>' +  industryName + '</b> industry on <b>' + _.last(_.first(sortedPairs)[0].split("/")) + '</b>.'
+
+}
+
+function solution2() {
+  // If Zayo only had enough team members to focus on two products, 
+  // which products would you prioritize?
+  // Strategy #1: Products with the highest average 'Total MRR'
+
+  // Kevin's Visualization
+  var groups = _.groupBy(serviceItems, 'Product')
+  groups = _.mapValues(groups, function(d){
+      var avg = _.round(_.sum(_.pluck(d, 'Total MRR'))/d.length, 2)
+      return avg
+  })
+  var pairs = _.pairs(groups)
+
+  var sortedPairs = _.sortBy(pairs, function(d) {
+    return -d[1]
+  })
+  var chartLabels = _.map(sortedPairs, function(d) { return d[0] })
+  var chartSeries = _.map(sortedPairs, function(d) { return d[1] })
+  
+  var data = {
+    labels: _.take(chartLabels, 8),
+    series: [ _.take(chartSeries, 8) ]
+  }
+  new Chartist.Bar('#q2 .answer', data);
+
+  // Caleb's Text Analysis
+  return 'After looking at products with the highest average Total MRR, we recommend that Zayo prioritize <b>' + _.first(sortedPairs)[0] + '</b>, which has an average Total MRR of $' + _.first(sortedPairs)[1].toLocaleString() + ', and <b>' + sortedPairs[1][0] + '</b>, which has an average Total MRR of $' + sortedPairs[1][1].toLocaleString() + '.'
+}
+
+function solution3() {
+  // If Zayo only had 5 representatives, which states would you prioritize for in-person meetings?
+  // Strategy #1: The states with the highest average 'Total MRR'
+  // Strategy #2: The states with the highest total 'Total MRR'
+
+  var filtered_data = _.filter(serviceItems, function(d) {
+    return d['State A'] != ""
+  })
+  var groups = _.groupBy(filtered_data, 'State A')
+  groups = _.mapValues(groups, function(d){
+      return _.round(_.sum(_.pluck(d, 'Total MRR')), 2)
+  })
+  var pairs = _.pairs(groups)
+
+  var sortedPairs = _.sortBy(pairs, function(d) {
+    return -d[1]
+  })
+  var chartLabels = _.map(sortedPairs, function(d) { return d[0] })
+  var chartSeries = _.map(sortedPairs, function(d) { return d[1] })
+  
+  var data = {
+    labels: _.take(chartLabels, 8),
+    series: [ _.take(chartSeries, 8) ]
+  }
+  new Chartist.Bar('#q3 .answer', data);
+
+  // Caleb's Text Analysis
+  return 'After looking at states with the highest total Total MRR, we recommend that Zayo prioritize <b>' + _.first(sortedPairs)[0] + '</b>, which has a total MRR of $' + _.first(sortedPairs)[1].toLocaleString() + ', and <b>' + sortedPairs[1][0]+ '</b>, which has a total MRR of $' + sortedPairs[1][1].toLocaleString() + '.'
+}
+
+function solution4() {
+  // If Zayo sent quotes to all Tranzact accounts, how would you prioritize the customer account list?
+  
+  // Strategy: Highest Sales volume for no service, and lowest sales volume for serviced
+
+  var filtered = _.filter(noServiceItems, function(d){
+    return !(d.SalesVolume == '#N/A')
+  })
+  var groups = _.groupBy(filtered, 'Name/ID')
+  console.log(groups)
+  var map = _.mapValues(groups, function(d){
+    return parseInt(_.pluck(d, 'SalesVolume'))
+  })
+  var sorted = _.sortBy(_.pairs(map), function(d){
+    return d[1]
+  }).reverse()
+  var str = 'No Services Accounts First (Ordered Most to Least by Sales Volume): '
+  _.forEach(sorted, function(d){
+    str += (d[0] + ', ')
+  })
+  var groups2 = _.groupBy(serviceItems, 'Name/ID')
+  var map2 = _.mapValues(groups2, function(d){
+    return _.sum(_.map(_.pluck(d, 'Total MRR'), _.parseInt))
+  })
+  var sorted2 = _.sortBy(_.pairs(map2), function(d){
+    return d[1]
+  })
+  str += '; Then Accounts Already With Services (Ordered Least to Most by MRR): '
+  _.forEach(sorted2, function(d){
+    str += (d[0] + ', ')
+  })
+  return str
+}
+
+
+function solution5() {
+  // Of the Tranzact accounts without services: How would you prioritize which 
+  // accounts to go after first and which products would they potentially buy?
+  //Strategy: Expected growth in dollars. Sales Volume * SalesTurnover. Products are the most popular for a given industry
+  
+  var industries = _.groupBy(profileItems, 'Industry')
+  var industriesmap = _.mapValues(industries, function(d){
+    return _.pluck(d, 'Name/ID')
+  })
+  var products = _.groupBy(serviceItems, 'Product')
+  var productsmap = _.mapValues(products, function(d){
+    return _.pluck(d, 'Name/ID')
+  })
+  var induspairs = _.pairs(industriesmap)
+  var prodpairs = _.pairs(productsmap)
+  var allmap = []
+
+  _.forEach(induspairs, function(d){
+    var maxproduct = ''
+    var maxcount = 0
+    for(var j = 0; j < d[1].length; j++){
+      _.forEach(prodpairs, function(f){
+         count = 0
+         for(var k = 0; k< f[1].length; k++){
+           if(d[1][j] == f[1][k]){
+             count++
+           }
+         }
+         if(count > maxcount){
+           maxcount = count
+           maxproduct = f[0]
+         }
+      })
+    }
+    allmap.push({'Industry': d[0], 'Product': maxproduct})
+  })
+  var filtered = _.filter(noServiceItems, function(d){
+    return !(d.SalesVolume == '#N/A')
+  })
+  var groups = _.groupBy(filtered, 'Name/ID')
+  var map = _.mapValues(groups, function(d){
+    var matchedproduct = 'No Matched Product'
+    _.forEach(allmap, function(f){
+      if(d[0].Industry == f.Industry){
+        matchedproduct = f.Product
+      }
+    })
+    return {'GrowthRate': parseInt(_.pluck(d, 'SalesVolume')) * parseInt(_.pluck(d, 'SalesTurnoverGrowthRate')), 'Product': matchedproduct}
+  })
+
+  var sorted = _.sortBy(_.pairs(map), function(d){
+    return d[1].GrowthRate
+  }).reverse()
+
+  var str = 'Ordered by Expected Growth in Dollars (Sales Volume * Sales Growth Rate): <br />'
+  _.forEach(sorted, function(d){
+    str += ('<b>ID</b>: ' + d[0] + ', <b>Matched Product</b>: ' + d[1].Product + '<br />')
+  })
+  return str
+}
+
+
+
+function run(id, solutionFunc, data) {
+    console.log('run solution for ' + id)
+    var answer = solutionFunc(data)
+    $(id).find('.answer').html(answer)
+}
+
+function loadDataThenRunSolutions() {
+
+  $.get('tranzact_services.json')
+    .done(function(data) {
+
+    serviceItems = data
+    console.log('number of serviceItems loaded:', serviceItems.length)
+    console.log('first serviceItems', serviceItems[0])
+
+    $.get('tranzact_profiles.json')
+      .done(function(data) {
+
+        profileItems = data
+        console.log('number of profileItems loaded:', profileItems.length)
+        console.log('first profileItems', profileItems[0])
+
+        $.get('tranzact_NoServices.json')
+          .done(function(data) {
+
+          noServiceItems = data
+          console.log('number of noServiceItems loaded:', noServiceItems.length)
+          console.log('first noServiceItems', noServiceItems[0])
+
+          run('#q1', solution1, serviceItems)
+          run('#q2', solution2, profileItems)
+          run('#q3', solution3, profileItems)
+          run('#q4', solution4, serviceItems)
+          run('#q5', solution5, serviceItems)
+
+        })
+        .fail(function(err) {
+          console.error(err)
+        })
+
+      })
+      .fail(function(err) {
+        console.error(err)
+      })
+
+    })
+    .fail(function(err) {
+        console.error(err)
+    })
+
+}
+
+loadDataThenRunSolutions()
+
+// convert Markdown to html
+$('.markdown').each(function(){
+  var markdownText = $(this).text()
+  $(this).html(marked(markdownText))
+})
+
+// initialize the parallax effect
+$(document).ready(function(){
+  console.log($('.parallax').html())
+    $('.parallax').parallax()
+})
+
+    </script>
+
+</body>
+</html>
