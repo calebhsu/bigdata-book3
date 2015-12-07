@@ -137,38 +137,191 @@ function solution1(){
     })
 }
 
+function solution2(){
+    var reviews = _.pluck(items, 'review_count')
+    var stars =  _.pluck(items, 'stars')
+    var data = {
+        xs: {
+            stars: 'stars_x'
+        },
+        columns: [
+            ["stars"].concat(stars),  
+            ["stars_x"].concat(reviews) 
+        ],
+        type: 'scatter'
+    }
+
+    var chart = c3.generate({
+      bindto: '#q2 .answer',
+      data: data,
+      axis: {
+          x: {
+              label: 'Reviews'
+          },
+          y: {
+              label: 'Stars',
+              tick: {
+                // manually set tick values
+                values: [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5]
+              }
+          }
+      }
+    })
+}
+
 function solution3(){
+    // What is the distance (km) between the two McDonald's in the city of Gilbert?
     var businessesInGilbert = _.filter(items, {city: 'Gilbert'})
-    // TODO: find McDonloads and compute the distance between the first two
-    return 'TODO'
+    var mc = _.filter(businessesInGilbert, {name: 'McDonald\'s'})
+
+    var c0 = [_.pluck(mc, 'longitude')[0], _.pluck(mc, 'latitude')[0]]
+    var c1 = [_.pluck(mc, 'longitude')[1], _.pluck(mc, 'latitude')[1]]
+
+    return (d3.geo.distance(c0, c1) * 6371).toFixed(3) + ' km'
 }
 
 function solution4(){
-    return 'TODO'
+    // What is the geographical center of all the McDonald's in the city of Phoenix?
+    var inPhoenix = _.filter(items, {city: 'Phoenix'})
+    var mc = _.filter(inPhoenix, {name: 'McDonald\'s'})
+
+    var lat = ss.mean(_.pluck(mc, 'latitude'))
+    var lon = ss.mean(_.pluck(mc, 'longitude'))
+
+    return 'Latitude: ' + lat.toFixed(8) + ', Longitude: ' + lon.toFixed(8) 
 }
 
 function solution5(){
-    return 'TODO'
+    var inPhoenix = _.filter(items, {city: 'Phoenix'}) 
+
+    var all = _.filter(inPhoenix, function(d) {
+      return d.name == 'McDonald\'s' || d.name == 'Starbucks'
+    })
+
+    all = _.pluck(all, 'name')
+
+    return 'There are more ' + ss.mode(all) + '.'
 }
 
 function solution6(){
-    return 'TODO'
+    var inPhoenix = _.filter(items, {city: 'Phoenix'})
+    var sb = _.filter(inPhoenix, {name: 'Starbucks'})
+    
+    var reviews = _.pluck(sb, 'review_count')
+    reviews = ss.max(reviews)
+
+    sb = _.find(sb, function(d) {
+      return d.review_count == reviews
+    })
+
+    return "The Starbucks located at " + sb.full_address + "."
 }
 
 function solution7(){
-    return 'TODO'
+    var inPhoenix = _.filter(items, {city: 'Phoenix'})
+    var sb = _.filter(inPhoenix, {name: 'Starbucks'})
+
+    // Most-reviewed Starbucks in Phoenix
+    var reviews = _.pluck(sb, 'review_count')
+    reviews = ss.max(reviews)
+
+    sb = _.find(sb, function(d) {
+      return d.review_count == reviews
+    })
+
+    var sbCoords = [sb.longitude, sb.latitude]
+
+    // McDonald's in Phoenix
+    var mc = _.filter(inPhoenix, {name: 'McDonald\'s'})
+
+    var map = []
+    var distances = []
+     _.forEach(mc, function(d) {
+        var mcCoords = [d.longitude, d.latitude] 
+        var dist = d3.geo.distance(sbCoords, mcCoords) * 6371
+        distances.push(dist)
+        map.push([d.full_address, dist])
+     })
+
+     var index = _.findIndex(map, function(d) {
+        return d[1] == ss.min(distances)
+     })
+
+    return "The Starbucks located at  " + map[index][0] + " is closest."
 }
 
 function solution8(){
-    return 'TODO'
+    var inPhoenix = _.filter(items, {city: 'Phoenix'})
+    var sb = _.filter(inPhoenix, {name: 'Starbucks'})
+
+    // Most-reviewed Starbucks in Phoenix
+    var reviews = _.pluck(sb, 'review_count')
+    reviews = ss.max(reviews)
+
+    sb = _.find(sb, function(d) {
+      return d.review_count == reviews
+    })
+
+    var sbCoords = [sb.longitude, sb.latitude]
+
+    // Coffee shops in Phoenix
+    var coffee = _.filter(inPhoenix, function(d) {
+        return _.includes(d.categories.join(', '), "Coffee")
+    })
+
+    var distances = []
+     _.forEach(coffee, function(d) {
+        var cfCoords = [d.longitude, d.latitude] 
+        var dist = d3.geo.distance(sbCoords, cfCoords) * 6371
+        if (dist < 2) {
+          distances.push(d.full_address)
+        }
+     })
+
+    return distances.length + ' coffee shops.'
 }
 
 function solution9(){
-    return 'TODO'
+    var inPhoenix = _.filter(items, {city: 'Phoenix'})
+    var mc = _.filter(inPhoenix, {name: 'McDonald\'s'})
+
+    var allLat = _.pluck(mc, 'latitude')
+    console.log(allLat)
+
+    var north = _.filter(mc, function(d) {
+        return d.latitude == ss.max(allLat)
+    })
+
+    var south = _.min(mc, function(d) {
+        return d.latitude == ss.min(allLat)
+    })
+
+    return "The McDonald's that is furthest north in Phoenix is located at " + north[0]['full_address'] + ", while the McDonald's that is furthest south is located at " + south.full_address + "."
 }
 
 function solution10(){
-    return 'TODO'
+    var inPhoenix = _.filter(items, {city: 'Phoenix'})
+
+    var mc = _.filter(inPhoenix, {name: 'McDonald\'s'})
+    var sb = _.filter(inPhoenix, {name: 'Starbucks'})
+
+    var addresses = []
+     _.forEach(mc, function(d) {
+        var mcCoords = [d.longitude, d.latitude]
+        var count = 0
+        _.forEach(sb, function(e){
+            var sbCoords = [e.longitude, e.latitude]
+            var dist = d3.geo.distance(sbCoords, mcCoords) * 6371
+            if (dist < 5) {
+              count++
+            }
+        })
+      if (count == 0) {
+        addresses.push(d.full_address)
+      }
+    })
+
+    return "The McDonald's without a Starbucks within 5 kilometers are located at " + addresses.join('; ') + "."
 }
 
 function run(id, solutionFunc, data){
@@ -191,15 +344,15 @@ function loadDataThenRunSolutions(){
          run('#e1', example1, items)
          run('#e2', example2, items)
          run('#q1', solution1, items)
-        //  run('#q2', solution2, items)
-        //  run('#q3', solution3, items)
-        //  run('#q4', solution4, items)
-        //  run('#q5', solution5, items)
-        //  run('#q6', solution6, items)
-        //  run('#q7', solution7, items)
-        //  run('#q8', solution8, items)
-        //  run('#q9', solution9, items)
-        //  run('#q10', solution10, items)
+         run('#q2', solution2, items)
+         run('#q3', solution3, items)
+         run('#q4', solution4, items)
+         run('#q5', solution5, items)
+         run('#q6', solution6, items)
+         run('#q7', solution7, items)
+         run('#q8', solution8, items)
+         run('#q9', solution9, items)
+         run('#q10', solution10, items)
      })
      .fail(function(err){
          console.error(err)
